@@ -1,0 +1,789 @@
+/* =============================================
+   UCation – Register Modal
+   ============================================= */
+
+/* ── Overlay ── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: overlayIn 0.2s ease;
+    padding: 0;
+}
+
+@keyframes overlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ── Container ── */
+.modal-container {
+    background: #fff;
+    border-radius: 20px;
+    width: min(980px, 95vw);
+    max-width: 980px;
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22);
+    animation: modalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Header ── */
+.modal-header {
+    position: relative;
+    background: var(--green-main, #2e7d32);
+    padding: 16px 80px 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* ── Stepper ── */
+.stepper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+    gap: 0;
+    min-width: 0;
+}
+
+.stepper__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    min-width: 0;
+}
+
+.stepper__bubble {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+}
+
+.stepper__bubble svg {
+    width: 14px;
+    height: 14px;
+}
+
+.stepper__item--active .stepper__bubble {
+    background: var(--gold, #f5c542);
+    border-color: var(--gold, #f5c542);
+    color: #333;
+    box-shadow: 0 0 0 4px rgba(245, 197, 66, 0.3);
+}
+
+.stepper__item--done .stepper__bubble {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.9);
+    color: var(--green-main, #2e7d32);
+}
+
+.stepper__label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.25s;
+}
+
+.stepper__item--active .stepper__label {
+    color: #fff;
+    font-weight: 700;
+}
+
+.stepper__item--done .stepper__label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.stepper__connector {
+    width: 36px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+/* ── Close button ── */
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 28px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(229, 57, 53, 0.7);
+    border-color: transparent;
+}
+
+.modal-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Body ── */
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 56px 32px;
+    min-height: 0;
+}
+
+.modal-header,
+.modal-footer {
+    flex-shrink: 0;
+}
+
+/* ── Step intro ── */
+.step-intro {
+    margin-bottom: 36px;
+}
+
+.step-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+    font-family: var(--font-serif, Georgia, serif);
+    margin-bottom: 6px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 14px;
+    color: #444;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--green-main, #2e7d32);
+    margin-top: 4px;
+}
+
+.checkbox-row .link {
+    color: var(--green-main, #2e7d32);
+    text-decoration: underline;
+}
+
+.s4-help {
+    margin-top: 18px;
+    font-size: 0.88rem;
+    color: #777;
+}
+
+.step-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+/* ── Step panel animation ── */
+.step-panel {
+    animation: stepIn 0.22s ease;
+}
+
+@keyframes stepIn {
+    from {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ── Role cards ── */
+.role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+.role-card {
+    position: relative;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 32px 24px 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    outline: none;
+}
+
+.role-card:hover {
+    border-color: var(--green-main, #2e7d32);
+    box-shadow: 0 8px 28px rgba(46, 125, 50, 0.14);
+    transform: translateY(-3px);
+}
+
+.role-card--selected {
+    border-color: var(--green-main, #2e7d32) !important;
+    background: #f1f8f1;
+    box-shadow: 0 8px 28px rgba(46, 125, 50, 0.18);
+    transform: translateY(-3px);
+}
+
+.role-card__icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(46, 125, 50, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green-main, #2e7d32);
+    transition: background 0.2s;
+    margin-bottom: 4px;
+}
+
+.role-card--selected .role-card__icon {
+    background: var(--green-main, #2e7d32);
+    color: #fff;
+}
+
+.role-card__icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.role-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.role-card__desc {
+    font-size: 0.82rem;
+    color: #777;
+    line-height: 1.45;
+    margin: 0;
+}
+
+/* Check badge */
+.role-card__check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    background: var(--green-main, #2e7d32);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.role-card__check svg {
+    width: 12px;
+    height: 12px;
+}
+
+.role-card--selected .role-card__check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ── Empty step placeholder ── */
+.empty-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 0;
+    opacity: 0.45;
+}
+
+.empty-step__icon {
+    width: 64px;
+    height: 64px;
+    color: var(--green-main, #2e7d32);
+}
+
+.empty-step__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-step__text {
+    font-size: 0.95rem;
+    color: #555;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.empty-step__text span {
+    font-size: 0.82rem;
+    color: var(--green-main, #2e7d32);
+    font-weight: 600;
+}
+
+/* ── Footer ── */
+.modal-footer {
+    padding: 16px 28px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+/* Dots */
+.footer-dots {
+    display: flex;
+    gap: 8px;
+}
+
+.footer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: all 0.25s;
+}
+
+.footer-dot--active {
+    background: var(--green-main, #2e7d32);
+    width: 22px;
+    border-radius: 4px;
+}
+
+/* Back button */
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-sans, sans-serif);
+}
+
+.btn-back svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-back:hover:not(:disabled) {
+    border-color: #999;
+    color: #333;
+}
+
+.btn-back:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* Next button */
+.btn-next {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-main, #2e7d32);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-sans, sans-serif);
+}
+
+.btn-next svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-next:hover:not(:disabled) {
+    background: #1b5e20;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+}
+
+.btn-next:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ── Paso 2: Formulario de datos ── */
+.s2-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 40px;
+    max-width: 100%;
+}
+
+/* Campo full-width */
+.s2-field--full {
+    grid-column: 1 / -1;
+}
+
+.s2-field {
+    position: relative;
+    margin-bottom: 28px;
+}
+
+.s2-field__label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    letter-spacing: 0.1px;
+}
+
+/* Input con underline (igual al login) */
+.s2-field__input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    padding: 6px 0;
+    font-size: 0.93rem;
+    font-family: var(--font-sans, sans-serif);
+    background: transparent;
+    color: #222;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.s2-field__input::placeholder {
+    color: #bbb;
+}
+
+.s2-field__input:focus {
+    border-bottom-color: var(--green-main, #2e7d32);
+}
+
+/* Date input: quitar estilos nativos raros */
+.s2-field__input--date {
+    color: #222;
+    cursor: pointer;
+}
+
+.s2-field__input--date::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+/* Select con underline */
+.s2-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.s2-field__select {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    padding: 6px 28px 6px 0;
+    font-size: 0.93rem;
+    font-family: var(--font-sans, sans-serif);
+    background: transparent;
+    color: #222;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.s2-field__select:focus {
+    border-bottom-color: var(--green-main, #2e7d32);
+}
+
+.s2-field__select option[value=""][disabled] {
+    color: #bbb;
+}
+
+.s2-select-arrow {
+    position: absolute;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    color: #999;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* Underline decorativo (igual al login) */
+.s2-field__underline {
+    display: none;
+    /* el borde inferior del input ya hace este rol */
+}
+
+/* Error state */
+.s2-field--error .s2-field__input,
+.s2-field--error .s2-field__select {
+    border-bottom-color: #e53935;
+}
+
+.s2-field__error {
+    display: block;
+    font-size: 0.76rem;
+    color: #e53935;
+    margin-top: 4px;
+}
+
+/* ── Paso 3: Perfil ── */
+
+/* Badge de rol */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-main, #2e7d32);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 6px 16px 6px 10px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+.role-badge--mentor {
+    background: var(--gold, #f5c542);
+    color: #333;
+}
+
+.role-badge svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.s3-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+}
+
+/* Fila foto */
+.s3-photo-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.s3-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.s3-avatar:hover {
+    border-color: var(--green-main, #2e7d32);
+}
+
+.s3-avatar svg {
+    width: 52px;
+    height: 52px;
+    color: #888;
+}
+
+.s3-avatar__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.s3-photo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.s3-photo-label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.s3-photo-label em {
+    font-style: normal;
+    font-weight: 400;
+    color: #888;
+}
+
+.s3-btn-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--green-main, #2e7d32);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-sans, sans-serif);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    width: fit-content;
+}
+
+.s3-btn-upload:hover {
+    background: #1b5e20;
+    transform: translateY(-1px);
+}
+
+.s3-btn-upload svg {
+    width: 15px;
+    height: 15px;
+}
+
+.s3-photo-hint {
+    font-size: 0.78rem;
+    color: #999;
+}
+
+/* Fila de selects lado a lado (estudiante) */
+.s3-fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 40px;
+}
+
+/* Textarea (mentor) */
+.s2-field__textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    padding: 6px 0;
+    font-size: 0.93rem;
+    font-family: var(--font-sans, sans-serif);
+    background: transparent;
+    color: #222;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.s2-field__textarea::placeholder {
+    color: #bbb;
+}
+
+.s2-field__textarea:focus {
+    border-bottom-color: var(--green-main, #2e7d32);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .s2-form {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .s2-field--full {
+        grid-column: 1;
+    }
+
+    .modal-body {
+        padding: 28px 24px 20px;
+    }
+
+    .role-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .stepper__label {
+        display: none;
+    }
+
+    .stepper__connector {
+        width: 20px;
+    }
+
+    .modal-brand__name {
+        display: none;
+    }
+}

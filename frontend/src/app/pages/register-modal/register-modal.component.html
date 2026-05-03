@@ -1,0 +1,420 @@
+<!-- Overlay del modal -->
+<div class="modal-overlay" *ngIf="isOpen" (click)="onOverlayClick($event)">
+    <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+        <!-- ===== HEADER / STEPPER ===== -->
+        <header class="modal-header">
+            <nav class="stepper" aria-label="Pasos de registro">
+                <div *ngFor="let step of steps; let i = index" class="stepper__item"
+                    [class.stepper__item--active]="currentStep === i + 1"
+                    [class.stepper__item--done]="currentStep > i + 1">
+                    <div class="stepper__bubble">
+                        <svg *ngIf="currentStep > i + 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
+                    </div>
+                    <span class="stepper__label">{{ step }}</span>
+                    <div class="stepper__connector" *ngIf="i < steps.length - 1"></div>
+                </div>
+            </nav>
+
+            <button class="modal-close" (click)="close()" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- ===== BODY ===== -->
+        <div class="modal-body">
+
+            <!-- PASO 1: Tu rol -->
+            <div class="step-panel" *ngIf="currentStep === 1">
+                <div class="step-intro">
+                    <h2 class="step-title" id="modal-title">¿Cómo quieres participar?</h2>
+                    <p class="step-subtitle">Selecciona tu rol en la plataforma</p>
+                </div>
+
+                <div class="role-grid">
+                    <button class="role-card" [class.role-card--selected]="formData.role === 'estudiante'"
+                        (click)="selectRole('estudiante')" type="button">
+                        <div class="role-card__icon">
+                            <!-- Graduation cap icon -->
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3L22 8L12 13L2 8L12 3Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linejoin="round" />
+                                <path d="M6 10.5V16.5C6 16.5 8.5 19 12 19C15.5 19 18 16.5 18 16.5V10.5"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <line x1="22" y1="8" x2="22" y2="14" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                                <circle cx="22" cy="15" r="1.5" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <h3 class="role-card__title">Estudiante</h3>
+                        <p class="role-card__desc">Busca orientación y apoyo académico durante mi carrera académica</p>
+                        <div class="role-card__check">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                    </button>
+
+                    <button class="role-card" [class.role-card--selected]="formData.role === 'mentor'"
+                        (click)="selectRole('mentor')" type="button">
+                        <div class="role-card__icon">
+                            <!-- Group/mentor icon -->
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                                <path d="M2 20C2 17.2 5.1 15 9 15C12.9 15 16 17.2 16 20" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" />
+                                <circle cx="18" cy="8" r="2.5" stroke="currentColor" stroke-width="2" />
+                                <path d="M15 20C15 18.3 16.3 17 18 17C19.7 17 21 18.3 21 20" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <h3 class="role-card__title">Mentor</h3>
+                        <p class="role-card__desc">Quiero compartir mi experiencia y guiar a otros estudiantes</p>
+                        <div class="role-card__check">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PASO 2: Datos -->
+            <div class="step-panel" *ngIf="currentStep === 2">
+                <div class="step-intro">
+                    <h2 class="step-title">Datos personales</h2>
+                    <p class="step-subtitle">Información básica de tu cuenta</p>
+                </div>
+
+                <div class="s2-form">
+
+                    <!-- Nombre completo (fila completa) -->
+                    <div class="s2-field s2-field--full" [class.s2-field--error]="s2Touched && !formData.fullName">
+                        <label class="s2-field__label">Nombre Completo</label>
+                        <input class="s2-field__input" type="text" [(ngModel)]="formData.fullName" name="fullName"
+                            placeholder="Ej. Juan Pérez García" autocomplete="name" />
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.fullName">
+                            Este campo es obligatorio
+                        </span>
+                    </div>
+
+                    <!-- Tipo de identificación + Número -->
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.idType">
+                        <label class="s2-field__label">Tipo de identificación</label>
+                        <div class="s2-select-wrap">
+                            <select class="s2-field__select" [(ngModel)]="formData.idType" name="idType">
+                                <option value="" disabled selected>Seleccionar</option>
+                                <option value="CC">Cédula de ciudadanía</option>
+                                <option value="TI">Tarjeta de identidad</option>
+                                <option value="CE">Cédula de extranjería</option>
+                            </select>
+                            <svg class="s2-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </div>
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.idType">
+                            Selecciona un tipo
+                        </span>
+                    </div>
+
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.idNumber">
+                        <label class="s2-field__label">Número de identificación</label>
+                        <input class="s2-field__input" type="text" [(ngModel)]="formData.idNumber" name="idNumber"
+                            placeholder="Ej. 1234567890" />
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.idNumber">
+                            Este campo es obligatorio
+                        </span>
+                    </div>
+
+                    <!-- Correo institucional + Teléfono -->
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.institutionalEmail">
+                        <label class="s2-field__label">Correo institucional</label>
+                        <input class="s2-field__input" type="email" [(ngModel)]="formData.institutionalEmail"
+                            name="institutionalEmail" placeholder="usuario@universidad.edu.co" autocomplete="email" />
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.institutionalEmail">
+                            Correo requerido
+                        </span>
+                    </div>
+
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.phone">
+                        <label class="s2-field__label">Teléfono</label>
+                        <input class="s2-field__input" type="tel" [(ngModel)]="formData.phone" name="phone"
+                            placeholder="Ej. 3001234567" autocomplete="tel" />
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.phone">
+                            Teléfono requerido
+                        </span>
+                    </div>
+
+                    <!-- Fecha de nacimiento + Ciudad -->
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.birthDate">
+                        <label class="s2-field__label">Fecha de nacimiento</label>
+                        <input class="s2-field__input s2-field__input--date" type="date"
+                            [(ngModel)]="formData.birthDate" name="birthDate" [max]="maxBirthDate" />
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.birthDate">
+                            Fecha requerida
+                        </span>
+                    </div>
+
+                    <div class="s2-field" [class.s2-field--error]="s2Touched && !formData.sede">
+                        <label class="s2-field__label">Sede</label>
+                        <div class="s2-select-wrap">
+                            <select class="s2-field__select" [(ngModel)]="formData.sede" name="sede">
+                                <option value="" disabled selected>Seleccionar Sede</option>
+                                <option value="MED">Medellín</option>
+                                <option value="RIO">Rionegro</option>
+                                <option value="URA">Uraba</option>
+                                <option value="OTR">Otra</option>
+                            </select>
+                            <svg class="s2-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </div>
+                        <div class="s2-field__underline"></div>
+                        <span class="s2-field__error" *ngIf="s2Touched && !formData.sede">
+                            Selecciona una sede
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PASO 3: Perfil -->
+            <div class="step-panel" *ngIf="currentStep === 3">
+                <div class="step-intro">
+                    <h2 class="step-title">Perfil académico</h2>
+                    <p class="step-subtitle">Información según tu rol</p>
+
+                    <!-- Badge de rol -->
+                    <div class="role-badge" [class.role-badge--mentor]="formData.role === 'mentor'">
+                        <!-- Estudiante icon -->
+                        <svg *ngIf="formData.role === 'estudiante'" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3L22 8L12 13L2 8L12 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linejoin="round" />
+                            <path d="M6 10.5V16.5C6 16.5 8.5 19 12 19C15.5 19 18 16.5 18 16.5V10.5"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <!-- Mentor icon -->
+                        <svg *ngIf="formData.role === 'mentor'" viewBox="0 0 24 24" fill="none">
+                            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M2 20C2 17.2 5.1 15 9 15C12.9 15 16 17.2 16 20" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" />
+                            <circle cx="18" cy="8" r="2.5" stroke="currentColor" stroke-width="2" />
+                            <path d="M15 20C15 18.3 16.3 17 18 17C19.7 17 21 18.3 21 20" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <span>{{ formData.role === 'estudiante' ? 'Estudiante' : 'Mentor' }}</span>
+                    </div>
+                </div>
+
+                <div class="s3-form">
+
+                    <!-- Foto de perfil (compartida) -->
+                    <div class="s3-photo-row">
+                        <div class="s3-avatar" (click)="triggerPhotoUpload()">
+                            <img *ngIf="photoPreview" [src]="photoPreview" alt="Foto de perfil"
+                                class="s3-avatar__img" />
+                            <svg *ngIf="!photoPreview" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="8" r="4" fill="#555" />
+                                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="#555" />
+                            </svg>
+                        </div>
+                        <div class="s3-photo-info">
+                            <span class="s3-photo-label">Foto de perfil <em>(Opcional)</em></span>
+                            <button type="button" class="s3-btn-upload" (click)="triggerPhotoUpload()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                                Subir foto
+                            </button>
+                            <span class="s3-photo-hint">JPG o PNG, máximo 2 MB</span>
+                            <input #photoInput type="file" accept="image/jpeg,image/png" style="display:none"
+                                (change)="onPhotoSelected($event)" />
+                        </div>
+                    </div>
+
+                    <!-- ── ESTUDIANTE ── -->
+                    <ng-container *ngIf="formData.role === 'estudiante'">
+
+                        <div class="s3-fields-row">
+                            <div class="s2-field" [class.s2-field--error]="s3Touched && !formData.academicProgram">
+                                <label class="s2-field__label">Programa académico</label>
+                                <div class="s2-select-wrap">
+                                    <select class="s2-field__select" [(ngModel)]="formData.academicProgram"
+                                        name="academicProgram">
+                                        <option value="" disabled selected>Seleccionar programa</option>
+                                        <option value="ING_SIS">Ingeniería de Sistemas</option>
+                                        <option value="ING_IND">Ingeniería Industrial</option>
+                                        <option value="ING_ELE">Ingeniería Electrónica</option>
+                                        <option value="ING_MEC">Ingeniería Mecánica</option>
+                                        <option value="ADM">Administración de Empresas</option>
+                                        <option value="CON">Contaduría Pública</option>
+                                        <option value="DER">Derecho</option>
+                                        <option value="PSI">Psicología</option>
+                                        <option value="MED">Medicina</option>
+                                        <option value="ARQ">Arquitectura</option>
+                                        <option value="OTR">Otro</option>
+                                    </select>
+                                    <svg class="s2-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </div>
+                                <div class="s2-field__underline"></div>
+                                <span class="s2-field__error" *ngIf="s3Touched && !formData.academicProgram">
+                                    Selecciona tu programa
+                                </span>
+                            </div>
+
+                            <div class="s2-field" [class.s2-field--error]="s3Touched && !formData.currentSemester">
+                                <label class="s2-field__label">Semestre actual</label>
+                                <div class="s2-select-wrap">
+                                    <select class="s2-field__select" [(ngModel)]="formData.currentSemester"
+                                        name="currentSemester">
+                                        <option value="" disabled selected>Seleccionar</option>
+                                        <option *ngFor="let s of semesters" [value]="s">{{ s }}°</option>
+                                    </select>
+                                    <svg class="s2-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </div>
+                                <div class="s2-field__underline"></div>
+                                <span class="s2-field__error" *ngIf="s3Touched && !formData.currentSemester">
+                                    Selecciona tu semestre
+                                </span>
+                            </div>
+                        </div>
+
+                    </ng-container>
+
+                    <!-- ── MENTOR ── -->
+                    <ng-container *ngIf="formData.role === 'mentor'">
+
+                        <div class="s2-field s2-field--full"
+                            [class.s2-field--error]="s3Touched && !formData.personalDescription">
+                            <label class="s2-field__label">Descripción personal</label>
+                            <textarea class="s2-field__textarea" [(ngModel)]="formData.personalDescription"
+                                name="personalDescription"
+                                placeholder="Cuéntanos sobre ti, tu experiencia y por qué quieres ser mentor..."
+                                rows="3"></textarea>
+                            <div class="s2-field__underline"></div>
+                            <span class="s2-field__error" *ngIf="s3Touched && !formData.personalDescription">
+                                Agrega una descripción
+                            </span>
+                        </div>
+
+                        <div class="s2-field s2-field--full"
+                            [class.s2-field--error]="s3Touched && !formData.academicBackground">
+                            <label class="s2-field__label">Formación académica</label>
+                            <input class="s2-field__input" type="text" [(ngModel)]="formData.academicBackground"
+                                name="academicBackground" placeholder="Ej. Ing. de Sistemas – Universidad Nacional" />
+                            <div class="s2-field__underline"></div>
+                            <span class="s2-field__error" *ngIf="s3Touched && !formData.academicBackground">
+                                Este campo es obligatorio
+                            </span>
+                        </div>
+
+                    </ng-container>
+
+                    <!-- Dirección (compartida, opcional) -->
+                    <div class="s2-field s2-field--full">
+                        <label class="s2-field__label">Dirección <em>(Opcional)</em></label>
+                        <input class="s2-field__input" type="text" [(ngModel)]="formData.address" name="address"
+                            placeholder="Ej. Cra 45 #12-34, Medellín" autocomplete="street-address" />
+                        <div class="s2-field__underline"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PASO 4: Seguridad -->
+            <div class="step-panel" *ngIf="currentStep === 4">
+                <div class="step-intro">
+                    <h2 class="step-title">Seguridad de tu cuenta</h2>
+                    <p class="step-subtitle">Crea una contraseña segura</p>
+                </div>
+
+                <div class="s2-form">
+                    <div class="s2-field s2-field--full" [class.s2-field--error]="s4Touched && (!formData.password || formData.password.length < 8)">
+                        <label class="s2-field__label">Contraseña</label>
+                        <input class="s2-field__input" type="password" [(ngModel)]="formData.password" name="password"
+                            placeholder="Crea una contraseña" autocomplete="new-password" />
+                        <span class="s2-field__error" *ngIf="s4Touched && !formData.password">
+                            La contraseña es obligatoria
+                        </span>
+                        <span class="s2-field__error" *ngIf="s4Touched && formData.password && formData.password.length < 8">
+                            La contraseña debe tener al menos 8 caracteres
+                        </span>
+                    </div>
+
+                    <div class="s2-field s2-field--full" [class.s2-field--error]="s4Touched && formData.password && formData.password !== formData.confirmPassword">
+                        <label class="s2-field__label">Confirmar contraseña</label>
+                        <input class="s2-field__input" type="password" [(ngModel)]="formData.confirmPassword" name="confirmPassword"
+                            placeholder="Repite tu contraseña" autocomplete="new-password" />
+                        <span class="s2-field__error" *ngIf="s4Touched && formData.password && formData.password !== formData.confirmPassword">
+                            Las contraseñas no coinciden
+                        </span>
+                    </div>
+
+                    <label class="checkbox-row" [class.s2-field--error]="s4Touched && !formData.termsAccepted">
+                        <input type="checkbox" [(ngModel)]="formData.termsAccepted" name="termsAccepted" />
+                        <span>
+                            Acepto los <a href="#" class="link">términos y condiciones</a> y la <a href="#" class="link">política de privacidad</a> del portal UCation.
+                        </span>
+                    </label>
+                    <span class="s2-field__error" *ngIf="s4Touched && !formData.termsAccepted">
+                        Debes aceptar los términos y condiciones para continuar.
+                    </span>
+
+                    <p class="s4-help">Usa al menos 8 caracteres con letras y números para mantener tu cuenta segura.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== FOOTER / NAVEGACIÓN ===== -->
+        <footer class="modal-footer">
+            <button class="btn-back" (click)="prevStep()" [disabled]="currentStep === 1" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Atrás
+            </button>
+
+            <div class="footer-dots">
+                <span *ngFor="let step of steps; let i = index" class="footer-dot"
+                    [class.footer-dot--active]="currentStep === i + 1"></span>
+            </div>
+
+            <button class="btn-next" (click)="nextStep()"
+                [disabled]="(currentStep === 1 && !formData.role) || (currentStep === 2 && !isStep2Valid()) || (currentStep === 3 && !isStep3Valid()) || (currentStep === 4 && !isStep4Valid())"
+                type="button">
+                <span *ngIf="currentStep < steps.length">Siguiente</span>
+                <span *ngIf="currentStep === steps.length">Finalizar</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
+        </footer>
+
+    </div>
+</div>

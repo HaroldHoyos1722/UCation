@@ -1,0 +1,32 @@
+/* styles.scss - Global */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --green-main: #2e7d32;
+    --green-dark: #1b5e20;
+    --green-btn: #388e3c;
+
+    --gold: #c9a227;
+    --gold-dark: #a8841f;
+
+    --white: #ffffff;
+    --gray-text: #666;
+    --gray-light: #e0e0e0;
+
+    --footer-bg: #1a1a1a;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
