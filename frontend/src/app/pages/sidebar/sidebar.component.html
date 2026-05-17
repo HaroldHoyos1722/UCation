@@ -46,7 +46,7 @@
             </div>
 
             <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'mentores'" (click)="setActive('mentores')">
+                <button class="nav-item" [class.active]="activeItem === 'mentores'" (click)="setActive('mentores')" routerLink="/mentores">
                     <span class="nav-icon"><i class="ti ti-users"></i></span>
                     <span class="nav-label">Mentores</span>
                 </button>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'mentorias'" (click)="setActive('mentorias')">
+                <button class="nav-item" [class.active]="activeItem === 'mentorias'" (click)="setActive('mentorias')" routerLink="/mentorias">
                     <span class="nav-icon"><i class="ti ti-school"></i></span>
                     <span class="nav-label">Mis mentorías</span>
                     <span class="nav-badge" *ngIf="badges.mentorias !== null && badges.mentorias > 0">
@@ -64,29 +64,15 @@
                 <span class="tooltip">Mis mentorías</span>
             </div>
 
-            <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'agenda'" (click)="setActive('agenda')">
-                    <span class="nav-icon"><i class="ti ti-calendar-event"></i></span>
-                    <span class="nav-label">Agenda</span>
-                </button>
-                <span class="tooltip">Agenda</span>
-            </div>
 
             <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'bitacora'" (click)="setActive('bitacora')">
+                <button class="nav-item" [class.active]="activeItem === 'bitacora'" (click)="setActive('bitacora')" routerLink="/bitacora">
                     <span class="nav-icon"><i class="ti ti-notebook"></i></span>
                     <span class="nav-label">Bitácora</span>
                 </button>
                 <span class="tooltip">Bitácora</span>
             </div>
 
-            <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'historial'" (click)="setActive('historial')">
-                    <span class="nav-icon"><i class="ti ti-history"></i></span>
-                    <span class="nav-label">Historial</span>
-                </button>
-                <span class="tooltip">Historial</span>
-            </div>
         </div>
 
         <div class="sb-divider"></div>

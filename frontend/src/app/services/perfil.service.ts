@@ -4,7 +4,8 @@ import { Observable, of } from 'rxjs';
 // ── Interfaces ──────────────────────────────────────────────
 
 export type UserRole = 'estudiante' | 'mentor';
-export type TipoIdentificacion = 'CC' | 'TI' | 'CE' | 'Pasaporte';
+export type TipoIdentificacion = 'Cédula de Ciudadanía' | 'Tarjeta de Identidad' | 'Cédula de Extranjería';
+export type Sede = 'Medellín' | 'Rionegro' | 'Urabá' | 'Otro';
 
 export interface EstudianteInfo {
     programaAcademico: string;
@@ -25,7 +26,7 @@ export interface UserProfile {
     correoInstitucional: string;
     numeroTelefonico: string;
     fechaNacimiento: string;       // ISO: '1999-04-15'
-    ciudad: string;
+    sede: Sede;
     role: UserRole;
 
     // Opcionales
@@ -56,12 +57,12 @@ export class ProfileService {
 const MOCK_PROFILE: UserProfile = {
     id: '1',
     nombreCompleto: 'Juan Díaz',
-    tipoIdentificacion: 'CC',
+    tipoIdentificacion: 'Cédula de Ciudadanía',
     numeroIdentificacion: '1234567890',
     correoInstitucional: 'juan.diaz@policia.edu.co',
     numeroTelefonico: '+57 300 123 4567',
     fechaNacimiento: '1999-04-15',
-    ciudad: 'Bogotá',
+    sede: 'Medellín',
     role: 'estudiante',
     fotoPerfil: null,
     direccion: 'Calle 123 #45-67',

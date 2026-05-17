@@ -1,0 +1,348 @@
+<!-- Loading -->
+<div class="page-loading" *ngIf="loading">
+    <i class="ti ti-loader-2 spin"></i>
+</div>
+
+<div class="mentorias-page" *ngIf="!loading">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <h1 class="topbar__title">Mis mentorías</h1>
+            <p class="topbar__sub">
+                {{ currentRole === 'mentor' ? 'Gestiona las solicitudes de tus estudiantes' : 'Seguimiento de tus
+                mentorías activas' }}
+            </p>
+        </div>
+        <div class="tabs">
+            <button class="tab" [class.tab--active]="activeTab === 'lista'" (click)="activeTab = 'lista'">
+                <i class="ti ti-list"></i> Lista
+            </button>
+            <button class="tab" [class.tab--active]="activeTab === 'calendario'"
+                (click)="activeTab = 'calendario'; buildCalendar()">
+                <i class="ti ti-calendar"></i> Calendario
+            </button>
+        </div>
+    </header>
+
+    <div class="mentorias__body">
+
+        <!-- ── VISTA LISTA ── -->
+        <ng-container *ngIf="activeTab === 'lista'">
+
+            <!-- Filtros de estado -->
+            <div class="estado-tabs">
+                <button class="estado-tab" [class.active]="filtroEstado === ''" (click)="filtroEstado = ''">
+                    Todas <span class="count">{{ contarPorEstado('') }}</span>
+                </button>
+                <button class="estado-tab" [class.active]="filtroEstado === 'pendiente'"
+                    (click)="filtroEstado = 'pendiente'">
+                    Pendientes <span class="count">{{ contarPorEstado('pendiente') }}</span>
+                </button>
+                <button class="estado-tab" [class.active]="filtroEstado === 'aceptada'"
+                    (click)="filtroEstado = 'aceptada'">
+                    Aceptadas <span class="count">{{ contarPorEstado('aceptada') }}</span>
+                </button>
+                <button class="estado-tab" [class.active]="filtroEstado === 'finalizada'"
+                    (click)="filtroEstado = 'finalizada'">
+                    Finalizadas <span class="count">{{ contarPorEstado('finalizada') }}</span>
+                </button>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" *ngIf="mentoriasFiltradas.length === 0">
+                <i class="ti ti-school-off"></i>
+                <p>No tienes mentorías en este estado.</p>
+            </div>
+
+            <!-- Tarjetas -->
+            <div class="mentorias-list" *ngIf="mentoriasFiltradas.length > 0">
+                <div class="mentoria-card" *ngFor="let m of mentoriasFiltradas">
+
+                    <!-- Header tarjeta -->
+                    <div class="mentoria-card__header">
+                        <div class="persona-info">
+                            <div class="avatar"
+                                [style.background]="(currentRole === 'estudiante' ? m.mentorColor : m.estudianteColor) + '22'"
+                                [style.color]="currentRole === 'estudiante' ? m.mentorColor : m.estudianteColor">
+                                {{ currentRole === 'estudiante' ? m.mentorIniciales : m.estudianteIniciales }}
+                            </div>
+                            <div>
+                                <p class="persona-nombre">
+                                    {{ currentRole === 'estudiante' ? m.mentorNombre : m.estudianteNombre }}
+                                </p>
+                                <p class="persona-sub">
+                                    {{ currentRole === 'estudiante' ? 'Mentor' : 'Estudiante' }} ·
+                                    Solicitud: {{ formatFecha(m.fechaSolicitud) }}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="estado-badge" [ngClass]="'estado--' + m.estado">
+                            {{ ESTADOS_LABEL[m.estado] }}
+                        </span>
+                    </div>
+
+                    <!-- Próxima sesión -->
+                    <div class="sesion-preview" *ngIf="getSesionesProgramadas(m).length > 0">
+                        <i class="ti ti-calendar-event"></i>
+                        <span>
+                            Próxima sesión:
+                            <strong>{{ formatFecha(getSesionesProgramadas(m)[0].fecha) }}</strong>
+                            a las <strong>{{ getSesionesProgramadas(m)[0].hora }}</strong>
+                            · {{ getSesionesProgramadas(m)[0].duracionMinutos }} min
+                            · {{ getSesionesProgramadas(m)[0].lugar }}
+                        </span>
+                    </div>
+
+                    <div class="sesion-preview sesion-preview--empty"
+                        *ngIf="m.estado === 'aceptada' && getSesionesProgramadas(m).length === 0">
+                        <i class="ti ti-calendar-off"></i>
+                        <span>Sin sesiones programadas</span>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="mentoria-card__actions">
+
+                        <!-- Estudiante: solo ver detalle -->
+                        <ng-container *ngIf="currentRole === 'estudiante'">
+                            <button class="btn-outline" (click)="abrirDetalle(m)">
+                                <i class="ti ti-eye"></i> Ver detalle
+                            </button>
+                        </ng-container>
+
+                        <!-- Mentor: responder si pendiente -->
+                        <ng-container *ngIf="currentRole === 'mentor' && m.estado === 'pendiente'">
+                            <button class="btn-danger" (click)="responder(m, 'rechazar')">
+                                <i class="ti ti-x"></i> Rechazar
+                            </button>
+                            <button class="btn-primary" (click)="responder(m, 'aceptar')">
+                                <i class="ti ti-check"></i> Aceptar
+                            </button>
+                        </ng-container>
+
+                        <!-- Mentor: gestionar si aceptada -->
+                        <ng-container *ngIf="currentRole === 'mentor' && m.estado === 'aceptada'">
+                            <button class="btn-outline" (click)="abrirDetalle(m)">
+                                <i class="ti ti-eye"></i> Ver sesiones
+                            </button>
+                            <button class="btn-outline-gold" (click)="abrirModalSesion(m)">
+                                <i class="ti ti-calendar-plus"></i> Programar sesión
+                            </button>
+                            <button class="btn-outline" (click)="finalizarMentoria(m)">
+                                <i class="ti ti-flag"></i> Finalizar
+                            </button>
+                        </ng-container>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </ng-container>
+
+        <!-- ── VISTA CALENDARIO ── -->
+        <ng-container *ngIf="activeTab === 'calendario'">
+            <div class="calendar-wrap">
+
+                <div class="calendar-nav">
+                    <button class="cal-nav-btn" (click)="prevMonth()">
+                        <i class="ti ti-chevron-left"></i>
+                    </button>
+                    <h3 class="cal-title">{{ MESES[calendarMonth] }} {{ calendarYear }}</h3>
+                    <button class="cal-nav-btn" (click)="nextMonth()">
+                        <i class="ti ti-chevron-right"></i>
+                    </button>
+                </div>
+
+                <table class="calendar">
+                    <thead>
+                        <tr>
+                            <th *ngFor="let d of DIAS">{{ d }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let week of calendarWeeks">
+                            <td *ngFor="let day of week" [class.today]="day.isToday"
+                                [class.has-session]="day.sesiones.length > 0 && !day.isToday"
+                                [class.empty]="day.date === null">
+                                <span class="cal-day-num">{{ day.date !== null ? day.date : '' }}</span>
+                                <span class="cal-session-dot" *ngIf="day.sesiones.length > 0"></span>
+                                <div class="cal-tooltip" *ngIf="day.sesiones.length > 0">
+                                    <div *ngFor="let s of day.sesiones" class="cal-tooltip-item">
+                                        <strong>{{ s.hora }}</strong> · {{ s.lugar }}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="calendar-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot--today"></span> Hoy
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot--session"></span> Sesión programada
+                    </span>
+                </div>
+
+            </div>
+        </ng-container>
+
+    </div>
+</div>
+
+<!-- ── Modal detalle mentoría ── -->
+<div class="modal-backdrop" *ngIf="mentoriaDetalle" (click)="cerrarDetalle()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal__header">
+            <h2 class="modal__title">
+                <i class="ti ti-school"></i>
+                Detalle de mentoría
+            </h2>
+            <button class="modal__close" (click)="cerrarDetalle()">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+
+        <div class="modal__body">
+
+            <div class="modal-personas">
+                <div class="modal-persona">
+                    <div class="avatar avatar--md" [style.background]="mentoriaDetalle.estudianteColor + '22'"
+                        [style.color]="mentoriaDetalle.estudianteColor">
+                        {{ mentoriaDetalle.estudianteIniciales }}
+                    </div>
+                    <div>
+                        <p class="modal-persona__label">Estudiante</p>
+                        <p class="modal-persona__name">{{ mentoriaDetalle.estudianteNombre }}</p>
+                    </div>
+                </div>
+                <i class="ti ti-arrows-right-left connector-icon"></i>
+                <div class="modal-persona">
+                    <div class="avatar avatar--md" [style.background]="mentoriaDetalle.mentorColor + '22'"
+                        [style.color]="mentoriaDetalle.mentorColor">
+                        {{ mentoriaDetalle.mentorIniciales }}
+                    </div>
+                    <div>
+                        <p class="modal-persona__label">Mentor</p>
+                        <p class="modal-persona__name">{{ mentoriaDetalle.mentorNombre }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sesiones -->
+            <div class="modal-section-title">
+                <i class="ti ti-calendar-event"></i> Sesiones
+            </div>
+
+            <div class="empty-sesiones" *ngIf="mentoriaDetalle.sesiones.length === 0">
+                Sin sesiones registradas
+            </div>
+
+            <div class="sesiones-list">
+                <div class="sesion-item" *ngFor="let s of mentoriaDetalle.sesiones" [ngClass]="'sesion--' + s.estado">
+
+                    <div class="sesion-item__left">
+                        <span class="sesion-estado-dot"></span>
+                        <div>
+                            <p class="sesion-fecha">{{ formatFecha(s.fecha) }} · {{ s.hora }} · {{ s.duracionMinutos }}
+                                min</p>
+                            <p class="sesion-lugar"><i class="ti ti-map-pin"></i> {{ s.lugar }}</p>
+                            <p class="sesion-obs" *ngIf="s.observaciones">{{ s.observaciones }}</p>
+                        </div>
+                    </div>
+
+                    <div class="sesion-item__actions" *ngIf="currentRole === 'mentor' && s.estado === 'programada'">
+                        <button class="btn-icon" (click)="abrirModalSesion(mentoriaDetalle, s)" title="Reprogramar">
+                            <i class="ti ti-pencil"></i>
+                        </button>
+                        <button class="btn-icon btn-icon--danger" (click)="cancelarSesion(mentoriaDetalle, s)"
+                            title="Cancelar sesión">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Programar desde modal detalle (mentor) -->
+            <button class="btn-primary btn-full"
+                *ngIf="currentRole === 'mentor' && mentoriaDetalle.estado === 'aceptada'"
+                (click)="cerrarDetalle(); abrirModalSesion(mentoriaDetalle)">
+                <i class="ti ti-calendar-plus"></i> Programar nueva sesión
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal sesión ── -->
+<div class="modal-backdrop" *ngIf="modalSesionAbierto" (click)="cerrarModalSesion()">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+
+        <div class="modal__header">
+            <h2 class="modal__title">
+                <i class="ti ti-calendar-plus"></i>
+                {{ sesionEditando ? 'Reprogramar sesión' : 'Nueva sesión' }}
+            </h2>
+            <button class="modal__close" (click)="cerrarModalSesion()">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+
+        <div class="modal__body">
+
+            <div class="form-grid">
+
+                <div class="form-field">
+                    <label class="form-label">Fecha *</label>
+                    <input class="form-input" type="date" [(ngModel)]="sesionForm.fecha" />
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Hora *</label>
+                    <input class="form-input" type="time" [(ngModel)]="sesionForm.hora" />
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Duración *</label>
+                    <select class="form-input" [(ngModel)]="sesionForm.duracionMinutos">
+                        <option *ngFor="let d of DURACIONES" [value]="d">{{ d }} minutos</option>
+                    </select>
+                </div>
+
+                <div class="form-field form-field--full">
+                    <label class="form-label">Lugar *</label>
+                    <input class="form-input" type="text" [(ngModel)]="sesionForm.lugar"
+                        placeholder="Ej: Sala B - Bloque 3" />
+                </div>
+
+                <div class="form-field form-field--full">
+                    <label class="form-label">Observaciones</label>
+                    <textarea class="form-input form-textarea" [(ngModel)]="sesionForm.observaciones"
+                        placeholder="Temas a tratar, materiales necesarios..." rows="3"></textarea>
+                </div>
+
+                <p class="form-hint form-field--full">
+                    <i class="ti ti-info-circle"></i>
+                    La duración debe ser entre 30 y 60 minutos.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="modal__footer">
+            <button class="btn-outline" (click)="cerrarModalSesion()" [disabled]="guardandoSesion">
+                Cancelar
+            </button>
+            <button class="btn-primary" (click)="guardarSesion()" [disabled]="!formularioValido() || guardandoSesion">
+                <i class="ti" [ngClass]="guardandoSesion ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
+                {{ guardandoSesion ? 'Guardando...' : (sesionEditando ? 'Guardar cambios' : 'Programar sesión') }}
+            </button>
+        </div>
+
+    </div>
+</div>

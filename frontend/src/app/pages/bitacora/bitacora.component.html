@@ -1,0 +1,314 @@
+<!-- Loading -->
+<div class="page-loading" *ngIf="loading">
+    <i class="ti ti-loader-2 spin"></i>
+</div>
+
+<div class="bitacora-page" *ngIf="!loading">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <h1 class="topbar__title">Bitácora</h1>
+            <p class="topbar__sub">
+                {{ currentRole === 'mentor'
+                ? 'Registra y gestiona el seguimiento de tus estudiantes'
+                : 'Consulta el historial de tus sesiones de mentoría' }}
+            </p>
+        </div>
+
+        <div class="topbar__right">
+            <!-- Resumen rápido -->
+            <div class="topbar-stats">
+                <div class="topbar-stat">
+                    <span class="topbar-stat__value">{{ contarPorEstado('registrada') }}</span>
+                    <span class="topbar-stat__label">Registradas</span>
+                </div>
+                <div class="topbar-stat topbar-stat--pending">
+                    <span class="topbar-stat__value">{{ contarPorEstado('pendiente') }}</span>
+                    <span class="topbar-stat__label">Pendientes</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" *ngIf="currentRole === 'mentor'" (click)="abrirModal()">
+                <i class="ti ti-plus"></i> Nueva entrada
+            </button>
+        </div>
+    </header>
+
+    <div class="bitacora__body">
+
+        <!-- Filtros -->
+        <div class="filters-bar">
+
+            <div class="search-wrap">
+                <i class="ti ti-search search-icon"></i>
+                <input class="search-input" type="text" placeholder="Buscar por mentor, estudiante o actividad..."
+                    [(ngModel)]="filtros.busqueda" />
+            </div>
+
+            <select class="filter-select" [(ngModel)]="filtros.mentor" *ngIf="currentRole === 'estudiante'">
+                <option value="">Todos los mentores</option>
+                <option *ngFor="let m of mentoresDisponibles" [value]="m">{{ m }}</option>
+            </select>
+
+            <select class="filter-select" [(ngModel)]="filtros.estado">
+                <option value="">Todos los estados</option>
+                <option value="registrada">Registrada</option>
+                <option value="pendiente">Pendiente</option>
+            </select>
+
+            <div class="date-range">
+                <input class="filter-input-date" type="date" [(ngModel)]="filtros.fechaDesde" title="Desde" />
+                <span class="date-sep">—</span>
+                <input class="filter-input-date" type="date" [(ngModel)]="filtros.fechaHasta" title="Hasta" />
+            </div>
+
+            <button class="btn-clear" *ngIf="hayFiltros()" (click)="limpiarFiltros()">
+                <i class="ti ti-x"></i> Limpiar
+            </button>
+
+        </div>
+
+        <!-- Contador resultados -->
+        <div class="results-info">
+            <span>{{ entradasFiltradas.length }} entrada{{ entradasFiltradas.length !== 1 ? 's' : '' }}</span>
+            <span *ngIf="hayFiltros()" class="results-filtered"> con filtros activos</span>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="entradasFiltradas.length === 0">
+            <i class="ti ti-notebook-off"></i>
+            <p *ngIf="!hayFiltros()">No hay entradas en la bitácora.</p>
+            <p *ngIf="hayFiltros()">No se encontraron entradas con esos filtros.</p>
+            <button class="btn-clear-lg" *ngIf="hayFiltros()" (click)="limpiarFiltros()">
+                Limpiar filtros
+            </button>
+        </div>
+
+        <!-- Timeline de entradas -->
+        <div class="timeline" *ngIf="entradasFiltradas.length > 0">
+            <div class="timeline-entry" *ngFor="let entrada of entradasFiltradas; let i = index"
+                [ngClass]="'entry--' + entrada.estado">
+
+                <!-- Línea de tiempo -->
+                <div class="timeline-line">
+                    <div class="timeline-dot" [ngClass]="'dot--' + entrada.estado"></div>
+                    <div class="timeline-connector" *ngIf="i < entradasFiltradas.length - 1"></div>
+                </div>
+
+                <!-- Tarjeta -->
+                <div class="entry-card" (click)="abrirDetalle(entrada)">
+
+                    <div class="entry-card__header">
+                        <div class="entry-meta">
+                            <div class="mentor-avatar" [style.background]="entrada.mentorColor + '22'"
+                                [style.color]="entrada.mentorColor">
+                                {{ entrada.mentorIniciales }}
+                            </div>
+                            <div>
+                                <p class="entry-mentor">{{ entrada.mentorNombre }}</p>
+                                <p class="entry-fecha">
+                                    <i class="ti ti-calendar"></i>
+                                    Sesión del {{ formatFecha(entrada.fechaSesion) }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="entry-card__right">
+                            <span class="estado-badge" [ngClass]="'estado--' + entrada.estado">
+                                {{ entrada.estado === 'registrada' ? 'Registrada' : 'Pendiente' }}
+                            </span>
+                            <button class="btn-icon btn-edit" *ngIf="currentRole === 'mentor'"
+                                (click)="$event.stopPropagation(); abrirModal(entrada)" title="Editar entrada">
+                                <i class="ti ti-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido preview (solo si registrada) -->
+                    <ng-container *ngIf="entrada.estado === 'registrada'">
+                        <div class="entry-section">
+                            <p class="entry-section__label">
+                                <i class="ti ti-checkbox"></i> Actividades realizadas
+                            </p>
+                            <p class="entry-section__text">{{ entrada.actividadesRealizadas }}</p>
+                        </div>
+                        <div class="entry-row">
+                            <div class="entry-section entry-section--half" *ngIf="entrada.observaciones">
+                                <p class="entry-section__label">
+                                    <i class="ti ti-eye"></i> Observaciones
+                                </p>
+                                <p class="entry-section__text entry-section__text--clamp">
+                                    {{ entrada.observaciones }}
+                                </p>
+                            </div>
+                            <div class="entry-section entry-section--half" *ngIf="entrada.recomendaciones">
+                                <p class="entry-section__label">
+                                    <i class="ti ti-bulb"></i> Recomendaciones
+                                </p>
+                                <p class="entry-section__text entry-section__text--clamp">
+                                    {{ entrada.recomendaciones }}
+                                </p>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <!-- Pendiente -->
+                    <div class="entry-pending" *ngIf="entrada.estado === 'pendiente'">
+                        <i class="ti ti-clock"></i>
+                        <span *ngIf="currentRole === 'mentor'">Esta sesión aún no tiene registro. Haz clic para
+                            completarla.</span>
+                        <span *ngIf="currentRole === 'estudiante'">El mentor aún no ha registrado esta sesión.</span>
+                    </div>
+
+                    <p class="entry-updated">
+                        Actualizado: {{ formatDateTime(entrada.actualizadoEn) }}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Modal registrar / editar ── -->
+<div class="modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal__header">
+            <h2 class="modal__title">
+                <i class="ti ti-notebook"></i>
+                {{ entradaEditando ? 'Editar entrada' : 'Nueva entrada' }}
+            </h2>
+            <button class="modal__close" (click)="cerrarModal()">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+
+        <div class="modal__body">
+
+            <div class="form-field">
+                <label class="form-label">
+                    Actividades realizadas *
+                </label>
+                <textarea class="form-input form-textarea" rows="4" [(ngModel)]="entradaForm.actividadesRealizadas"
+                    placeholder="Describe las actividades y temas trabajados en la sesión...">
+        </textarea>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">
+                    Observaciones *
+                </label>
+                <textarea class="form-input form-textarea" rows="3" [(ngModel)]="entradaForm.observaciones"
+                    placeholder="Escribe observaciones sobre el desempeño del estudiante...">
+        </textarea>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">
+                    Recomendaciones académicas
+                    <span class="label-optional">(opcional)</span>
+                </label>
+                <textarea class="form-input form-textarea" rows="3" [(ngModel)]="entradaForm.recomendaciones"
+                    placeholder="Tareas, lecturas o ejercicios recomendados...">
+        </textarea>
+            </div>
+
+        </div>
+
+        <div class="modal__footer">
+            <button class="btn-outline" (click)="cerrarModal()" [disabled]="guardando">
+                Cancelar
+            </button>
+            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido() || guardando">
+                <i class="ti" [ngClass]="guardando ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
+                {{ guardando ? 'Guardando...' : (entradaEditando ? 'Guardar cambios' : 'Registrar entrada') }}
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Modal detalle ── -->
+<div class="modal-backdrop" *ngIf="entradaDetalle" (click)="cerrarDetalle()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal__header">
+            <div class="modal__header-info">
+                <div class="mentor-avatar mentor-avatar--lg" [style.background]="entradaDetalle.mentorColor + '22'"
+                    [style.color]="entradaDetalle.mentorColor">
+                    {{ entradaDetalle.mentorIniciales }}
+                </div>
+                <div>
+                    <h2 class="modal__title">{{ entradaDetalle.mentorNombre }}</h2>
+                    <p class="modal__sub">
+                        Sesión del {{ formatFecha(entradaDetalle.fechaSesion) }} ·
+                        {{ entradaDetalle.estudianteNombre }}
+                    </p>
+                </div>
+            </div>
+            <div class="modal__header-actions">
+                <span class="estado-badge" [ngClass]="'estado--' + entradaDetalle.estado">
+                    {{ entradaDetalle.estado === 'registrada' ? 'Registrada' : 'Pendiente' }}
+                </span>
+                <button class="modal__close" (click)="cerrarDetalle()">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="modal__body" *ngIf="entradaDetalle.estado === 'registrada'">
+
+            <div class="detail-section">
+                <h4 class="detail-section__title">
+                    <i class="ti ti-checkbox"></i> Actividades realizadas
+                </h4>
+                <p class="detail-section__text">{{ entradaDetalle.actividadesRealizadas }}</p>
+            </div>
+
+            <div class="detail-section" *ngIf="entradaDetalle.observaciones">
+                <h4 class="detail-section__title">
+                    <i class="ti ti-eye"></i> Observaciones
+                </h4>
+                <p class="detail-section__text">{{ entradaDetalle.observaciones }}</p>
+            </div>
+
+            <div class="detail-section" *ngIf="entradaDetalle.recomendaciones">
+                <h4 class="detail-section__title">
+                    <i class="ti ti-bulb"></i> Recomendaciones académicas
+                </h4>
+                <p class="detail-section__text">{{ entradaDetalle.recomendaciones }}</p>
+            </div>
+
+            <p class="detail-footer">
+                <i class="ti ti-clock"></i>
+                Registrado: {{ formatDateTime(entradaDetalle.creadoEn) }}
+                <span *ngIf="entradaDetalle.creadoEn !== entradaDetalle.actualizadoEn">
+                    · Editado: {{ formatDateTime(entradaDetalle.actualizadoEn) }}
+                </span>
+            </p>
+
+        </div>
+
+        <div class="modal__body" *ngIf="entradaDetalle.estado === 'pendiente'">
+            <div class="empty-state">
+                <i class="ti ti-notebook-off"></i>
+                <p>Esta sesión aún no tiene registro en la bitácora.</p>
+                <button class="btn-primary" *ngIf="currentRole === 'mentor'"
+                    (click)="cerrarDetalle(); abrirModal(entradaDetalle)">
+                    <i class="ti ti-plus"></i> Registrar ahora
+                </button>
+            </div>
+        </div>
+
+        <div class="modal__footer">
+            <button class="btn-outline" (click)="cerrarDetalle()">Cerrar</button>
+            <button class="btn-primary" *ngIf="currentRole === 'mentor' && entradaDetalle.estado === 'registrada'"
+                (click)="cerrarDetalle(); abrirModal(entradaDetalle)">
+                <i class="ti ti-pencil"></i> Editar
+            </button>
+        </div>
+
+    </div>
+</div>

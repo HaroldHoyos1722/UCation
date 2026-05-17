@@ -9,12 +9,29 @@
     <header class="topbar">
         <div class="topbar__left">
             <h1 class="topbar__title">Mi perfil</h1>
-            <p class="topbar__sub">Información de tu cuenta</p>
+            <p class="topbar__sub">{{ isEditing ? 'Editando información' : 'Información de tu cuenta' }}</p>
         </div>
-        <button class="btn-edit" (click)="goToEdit()">
-            <i class="ti ti-pencil"></i>
-            Editar perfil
-        </button>
+        <div class="topbar__actions">
+
+            <!-- Modo lectura -->
+            <button class="btn-edit" *ngIf="!isEditing" (click)="startEdit()">
+                <i class="ti ti-pencil"></i>
+                Editar perfil
+            </button>
+
+            <!-- Modo edición -->
+            <ng-container *ngIf="isEditing">
+                <button class="btn-cancel" (click)="cancelEdit()" [disabled]="saving">
+                    <i class="ti ti-x"></i>
+                    Cancelar
+                </button>
+                <button class="btn-save" (click)="saveChanges()" [disabled]="saving">
+                    <i class="ti" [ngClass]="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
+                    {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+                </button>
+            </ng-container>
+
+        </div>
     </header>
 
     <div class="perfil__body">
@@ -22,22 +39,57 @@
         <!-- Hero card -->
         <div class="hero-card">
             <div class="hero-card__avatar-wrap">
-                <img *ngIf="profile.fotoPerfil" [src]="profile.fotoPerfil" [alt]="profile.nombreCompleto"
-                    class="hero-card__avatar-img" />
-                <div *ngIf="!profile.fotoPerfil" class="hero-card__avatar-placeholder">
-                    {{ getInitials() }}
-                </div>
+
+                <!-- Lectura -->
+                <ng-container *ngIf="!isEditing">
+                    <img *ngIf="profile.fotoPerfil" [src]="profile.fotoPerfil" [alt]="profile.nombreCompleto"
+                        class="hero-card__avatar-img" />
+                    <div *ngIf="!profile.fotoPerfil" class="hero-card__avatar-placeholder">
+                        {{ getInitials() }}
+                    </div>
+                </ng-container>
+
+                <!-- Edición: foto clickeable -->
+                <ng-container *ngIf="isEditing && editForm">
+                    <label class="avatar-edit-wrap" for="fotoInput">
+                        <img *ngIf="editForm.fotoPerfil" [src]="editForm.fotoPerfil" [alt]="editForm.nombreCompleto"
+                            class="hero-card__avatar-img" />
+                        <div *ngIf="!editForm.fotoPerfil" class="hero-card__avatar-placeholder">
+                            {{ getInitials(editForm.nombreCompleto) }}
+                        </div>
+                        <div class="avatar-edit-overlay">
+                            <i class="ti ti-camera"></i>
+                        </div>
+                    </label>
+                    <input id="fotoInput" type="file" accept="image/*" class="hidden-input"
+                        (change)="onFotoChange($event)" />
+                </ng-container>
+
             </div>
+
             <div class="hero-card__info">
-                <h2 class="hero-card__name">{{ profile.nombreCompleto }}</h2>
+
+                <!-- Lectura -->
+                <ng-container *ngIf="!isEditing">
+                    <h2 class="hero-card__name">{{ profile.nombreCompleto }}</h2>
+                </ng-container>
+
+                <!-- Edición -->
+                <ng-container *ngIf="isEditing && editForm">
+                    <input class="edit-input edit-input--name" type="text" [(ngModel)]="editForm.nombreCompleto"
+                        placeholder="Nombre completo" />
+                </ng-container>
+
                 <span class="role-badge" [ngClass]="'role--' + profile.role">
                     <i class="ti" [ngClass]="profile.role === 'mentor' ? 'ti-award' : 'ti-school'"></i>
                     {{ profile.role === 'mentor' ? 'Mentor' : 'Estudiante' }}
                 </span>
+
                 <p class="hero-card__email">
                     <i class="ti ti-mail"></i>
                     {{ profile.correoInstitucional }}
                 </p>
+
             </div>
         </div>
 
@@ -51,48 +103,72 @@
                     <h3>Información personal</h3>
                 </div>
                 <div class="fields">
-                    <div class="field">
-                        <span class="field__label">Nombre completo</span>
-                        <span class="field__value">{{ profile.nombreCompleto }}</span>
-                    </div>
+
                     <div class="field">
                         <span class="field__label">Tipo de identificación</span>
-                        <span class="field__value">{{ profile.tipoIdentificacion }}</span>
+                        <span class="field__value" *ngIf="!isEditing">{{ profile.tipoIdentificacion }}</span>
+                        <select class="edit-input" *ngIf="isEditing && editForm"
+                            [(ngModel)]="editForm.tipoIdentificacion">
+                            <option *ngFor="let t of tiposIdentificacion" [value]="t">{{ t }}</option>
+                        </select>
                     </div>
+
                     <div class="field">
                         <span class="field__label">Número de identificación</span>
-                        <span class="field__value">{{ profile.numeroIdentificacion }}</span>
+                        <span class="field__value" *ngIf="!isEditing">{{ profile.numeroIdentificacion }}</span>
+                        <input class="edit-input" type="text" *ngIf="isEditing && editForm"
+                            [(ngModel)]="editForm.numeroIdentificacion" placeholder="Número de identificación" />
                     </div>
+
                     <div class="field">
                         <span class="field__label">Fecha de nacimiento</span>
-                        <span class="field__value">{{ formatDate(profile.fechaNacimiento) }}</span>
+                        <span class="field__value" *ngIf="!isEditing">{{ formatDate(profile.fechaNacimiento) }}</span>
+                        <input class="edit-input" type="date" *ngIf="isEditing && editForm"
+                            [(ngModel)]="editForm.fechaNacimiento" />
                     </div>
+
                     <div class="field">
-                        <span class="field__label">Ciudad</span>
-                        <span class="field__value">{{ profile.ciudad }}</span>
+                        <span class="field__label">Sede</span>
+                        <span class="field__value" *ngIf="!isEditing">{{ profile.sede }}</span>
+                        <select class="edit-input" *ngIf="isEditing && editForm" [(ngModel)]="editForm.sede">
+                            <option *ngFor="let s of sedes" [value]="s">{{ s }}</option>
+                        </select>
                     </div>
-                    <div class="field" *ngIf="profile.direccion">
-                        <span class="field__label">Dirección</span>
-                        <span class="field__value">{{ profile.direccion }}</span>
+
+                    <div class="field">
+                        <span class="field__label">Dirección <span class="optional">(opcional)</span></span>
+                        <span class="field__value" *ngIf="!isEditing">{{ profile.direccion ?? '—' }}</span>
+                        <input class="edit-input" type="text" *ngIf="isEditing && editForm"
+                            [(ngModel)]="editForm.direccion" placeholder="Dirección" />
                     </div>
+
                 </div>
             </div>
 
-            <!-- Información de contacto -->
+            <!-- Contacto -->
             <div class="section-card">
                 <div class="section-card__header">
                     <i class="ti ti-address-book"></i>
                     <h3>Contacto</h3>
                 </div>
                 <div class="fields">
+
                     <div class="field">
                         <span class="field__label">Correo institucional</span>
+                        <!-- El correo no es editable -->
                         <span class="field__value">{{ profile.correoInstitucional }}</span>
+                        <span class="field__hint" *ngIf="isEditing">
+                            <i class="ti ti-lock"></i> No editable
+                        </span>
                     </div>
+
                     <div class="field">
                         <span class="field__label">Número telefónico</span>
-                        <span class="field__value">{{ profile.numeroTelefonico }}</span>
+                        <span class="field__value" *ngIf="!isEditing">{{ profile.numeroTelefonico }}</span>
+                        <input class="edit-input" type="tel" *ngIf="isEditing && editForm"
+                            [(ngModel)]="editForm.numeroTelefonico" placeholder="+57 300 000 0000" />
                     </div>
+
                 </div>
             </div>
 
@@ -103,14 +179,26 @@
                     <h3>Información académica</h3>
                 </div>
                 <div class="fields">
+
                     <div class="field">
                         <span class="field__label">Programa académico</span>
-                        <span class="field__value">{{ profile.estudianteInfo!.programaAcademico }}</span>
+                        <span class="field__value" *ngIf="!isEditing">
+                            {{ profile.estudianteInfo!.programaAcademico }}
+                        </span>
+                        <input class="edit-input" type="text" *ngIf="isEditing && editForm && editForm.estudianteInfo"
+                            [(ngModel)]="editForm.estudianteInfo!.programaAcademico" placeholder="Programa académico" />
                     </div>
+
                     <div class="field">
                         <span class="field__label">Semestre actual</span>
-                        <span class="field__value">{{ profile.estudianteInfo!.semestre }}° semestre</span>
+                        <span class="field__value" *ngIf="!isEditing">
+                            {{ profile.estudianteInfo!.semestre }}° semestre
+                        </span>
+                        <input class="edit-input" type="number" min="1" max="12"
+                            *ngIf="isEditing && editForm && editForm.estudianteInfo"
+                            [(ngModel)]="editForm.estudianteInfo!.semestre" />
                     </div>
+
                 </div>
             </div>
 
@@ -122,18 +210,29 @@
                         <h3>Perfil de mentor</h3>
                     </div>
                     <div class="fields">
+
                         <div class="field field--full">
                             <span class="field__label">Descripción personal</span>
-                            <span class="field__value field__value--paragraph">
+                            <span class="field__value field__value--paragraph" *ngIf="!isEditing">
                                 {{ profile.mentorInfo!.descripcionPersonal }}
                             </span>
+                            <textarea class="edit-input edit-input--textarea"
+                                *ngIf="isEditing && editForm && editForm.mentorInfo"
+                                [(ngModel)]="editForm.mentorInfo!.descripcionPersonal"
+                                placeholder="Descripción personal" rows="3"></textarea>
                         </div>
+
                         <div class="field field--full">
                             <span class="field__label">Formación académica</span>
-                            <span class="field__value field__value--paragraph">
+                            <span class="field__value field__value--paragraph" *ngIf="!isEditing">
                                 {{ profile.mentorInfo!.formacionAcademica }}
                             </span>
+                            <textarea class="edit-input edit-input--textarea"
+                                *ngIf="isEditing && editForm && editForm.mentorInfo"
+                                [(ngModel)]="editForm.mentorInfo!.formacionAcademica" placeholder="Formación académica"
+                                rows="3"></textarea>
                         </div>
+
                     </div>
                 </div>
             </ng-container>

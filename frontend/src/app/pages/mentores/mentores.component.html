@@ -1,0 +1,148 @@
+<!-- Loading -->
+<div class="page-loading" *ngIf="loading">
+    <i class="ti ti-loader-2 spin"></i>
+</div>
+
+<div class="mentores-page" *ngIf="!loading">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <h1 class="topbar__title">Mentores</h1>
+            <p class="topbar__sub">{{ mentoresFiltrados.length }} mentores encontrados</p>
+        </div>
+    </header>
+
+    <div class="mentores__body">
+
+        <!-- Filtros -->
+        <div class="filters-bar">
+            <div class="search-wrap">
+                <i class="ti ti-search search-icon"></i>
+                <input class="search-input" type="text" placeholder="Buscar por nombre o sede..."
+                    [(ngModel)]="filters.busqueda" (ngModelChange)="aplicarFiltros()" />
+            </div>
+
+            <select class="filter-select" [(ngModel)]="filters.disponibilidad" (ngModelChange)="aplicarFiltros()">
+                <option value="">Disponibilidad</option>
+                <option *ngFor="let d of disponibilidades" [value]="d.value">{{ d.label }}</option>
+            </select>
+
+            <button class="btn-clear" *ngIf="hayFiltrosActivos()" (click)="limpiarFiltros()">
+                <i class="ti ti-x"></i> Limpiar
+            </button>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="empty-state" *ngIf="mentoresFiltrados.length === 0">
+            <i class="ti ti-users-off"></i>
+            <p>No se encontraron mentores con esos filtros.</p>
+            <button class="btn-clear-lg" (click)="limpiarFiltros()">Limpiar filtros</button>
+        </div>
+
+        <!-- Grid de tarjetas -->
+        <div class="mentores-grid" *ngIf="mentoresFiltrados.length > 0">
+            <div class="mentor-card" *ngFor="let mentor of mentoresFiltrados" (click)="abrirModal(mentor)">
+                <!-- Avatar -->
+                <div class="mentor-card__avatar" [style.background]="mentor.color + '22'" [style.color]="mentor.color">
+                    {{ mentor.iniciales }}
+                </div>
+
+                <!-- Info -->
+                <div class="mentor-card__info">
+                    <h3 class="mentor-card__name">{{ mentor.nombreCompleto }}</h3>
+                    <p class="mentor-card__sede">
+                        <i class="ti ti-map-pin"></i> {{ mentor.sede }}
+                    </p>
+                </div>
+
+                <!-- Stats y estado -->
+                <div class="mentor-card__footer">
+                    <div class="mentor-card__stats">
+                        <span class="stat">
+                            <i class="ti ti-star-filled"></i> {{ mentor.calificacion }}
+                        </span>
+                    </div>
+                    <span class="disponibilidad-badge" [ngClass]="'disp--' + mentor.disponibilidad">
+                        {{ getDisponibilidadLabel(mentor.disponibilidad) }}
+                    </span>
+                </div>
+
+                <!-- Botón solicitar -->
+                <button class="btn-solicitar" [ngClass]="{
+            'btn-solicitar--enviado': yaEnvio(mentor.id),
+            'btn-solicitar--disabled': mentor.disponibilidad !== 'disponible'
+          }" [disabled]="mentor.disponibilidad !== 'disponible' || yaEnvio(mentor.id)"
+                    (click)="solicitarMentoria(mentor, $event)">
+                    <i class="ti" [ngClass]="yaEnvio(mentor.id) ? 'ti-check' : 'ti-send'"></i>
+                    {{ yaEnvio(mentor.id) ? 'Solicitud enviada' : 'Solicitar mentoría' }}
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Modal detalle mentor ── -->
+<div class="modal-backdrop" *ngIf="mentorSeleccionado" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <button class="modal__close" (click)="cerrarModal()">
+            <i class="ti ti-x"></i>
+        </button>
+
+        <div class="modal__header">
+            <div class="modal__avatar" [style.background]="mentorSeleccionado.color + '22'"
+                [style.color]="mentorSeleccionado.color">
+                {{ mentorSeleccionado.iniciales }}
+            </div>
+            <div class="modal__header-info">
+                <h2 class="modal__name">{{ mentorSeleccionado.nombreCompleto }}</h2>
+                <p class="modal__correo">
+                    <i class="ti ti-mail"></i> {{ mentorSeleccionado.correo }}
+                </p>
+                <div class="modal__meta">
+                    <span class="stat"><i class="ti ti-star-filled"></i> {{ mentorSeleccionado.calificacion }}</span>
+                    <span class="stat"><i class="ti ti-map-pin"></i> {{ mentorSeleccionado.sede }}</span>
+                    <span class="disponibilidad-badge" [ngClass]="'disp--' + mentorSeleccionado.disponibilidad">
+                        {{ getDisponibilidadLabel(mentorSeleccionado.disponibilidad) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal__body">
+
+            <div class="modal__section">
+                <h4 class="modal__section-title">
+                    <i class="ti ti-user"></i> Descripción
+                </h4>
+                <p class="modal__text">{{ mentorSeleccionado.descripcionPersonal }}</p>
+            </div>
+
+            <div class="modal__section">
+                <h4 class="modal__section-title">
+                    <i class="ti ti-certificate"></i> Formación académica
+                </h4>
+                <p class="modal__text">{{ mentorSeleccionado.formacionAcademica }}</p>
+            </div>
+        </div>
+
+        <div class="modal__footer">
+            <button class="btn-cancel-modal" (click)="cerrarModal()">Cerrar</button>
+            <button class="btn-solicitar-modal" [ngClass]="{
+          'btn-solicitar--enviado': yaEnvio(mentorSeleccionado.id),
+          'btn-solicitar--disabled': mentorSeleccionado.disponibilidad !== 'disponible'
+        }" [disabled]="mentorSeleccionado.disponibilidad !== 'disponible' ||
+                    yaEnvio(mentorSeleccionado.id) || enviandoSolicitud"
+                (click)="solicitarMentoria(mentorSeleccionado)">
+                <i class="ti" [ngClass]="enviandoSolicitud ? 'ti-loader-2 spin' :
+                      yaEnvio(mentorSeleccionado.id) ? 'ti-check' : 'ti-send'"></i>
+                {{ enviandoSolicitud ? 'Enviando...' :
+                yaEnvio(mentorSeleccionado.id) ? 'Solicitud enviada' : 'Solicitar mentoría' }}
+            </button>
+        </div>
+
+    </div>
+</div>
