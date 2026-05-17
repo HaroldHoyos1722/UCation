@@ -1,0 +1,126 @@
+<aside class="sidebar" [class.collapsed]="collapsed">
+
+    <!-- Header -->
+    <div class="sb-header">
+        <div class="logo-wrap">
+            <img [src]="logoSrc" alt="Logo Politécnico" class="logo-img" />
+        </div>
+        <div class="brand-text">
+            <div class="brand-name">
+                <span class="brand-u">U</span><span class="brand-cation">Cation</span>
+            </div>
+            <div class="brand-sub">Plataforma educativa</div>
+        </div>
+        <button class="toggle-btn" (click)="toggleSidebar()"
+            [attr.aria-label]="collapsed ? 'Expandir menú' : 'Colapsar menú'">
+            <i class="ti"
+                [ngClass]="collapsed ? 'ti-layout-sidebar-left-expand' : 'ti-layout-sidebar-left-collapse'"></i>
+        </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sb-nav">
+
+        <!-- Principal -->
+        <div class="sb-section">
+            <div class="sb-section-label">Principal</div>
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'inicio'" (click)="setActive('inicio')" routerLink="/home">
+                    <span class="nav-icon"><i class="ti ti-home-2"></i></span>
+                    <span class="nav-label">Inicio</span>
+                </button>
+                <span class="tooltip">Inicio</span>
+            </div>
+        </div>
+
+        <!-- Módulos -->
+        <div class="sb-section">
+            <div class="sb-section-label">Módulos</div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'perfil'" (click)="setActive('perfil')" routerLink="/perfil">
+                    <span class="nav-icon"><i class="ti ti-user-circle"></i></span>
+                    <span class="nav-label">Mi perfil</span>
+                </button>
+                <span class="tooltip">Mi perfil</span>
+            </div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'mentores'" (click)="setActive('mentores')">
+                    <span class="nav-icon"><i class="ti ti-users"></i></span>
+                    <span class="nav-label">Mentores</span>
+                </button>
+                <span class="tooltip">Mentores</span>
+            </div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'mentorias'" (click)="setActive('mentorias')">
+                    <span class="nav-icon"><i class="ti ti-school"></i></span>
+                    <span class="nav-label">Mis mentorías</span>
+                    <span class="nav-badge" *ngIf="badges.mentorias !== null && badges.mentorias > 0">
+                        {{ badges.mentorias }}
+                    </span>
+                </button>
+                <span class="tooltip">Mis mentorías</span>
+            </div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'agenda'" (click)="setActive('agenda')">
+                    <span class="nav-icon"><i class="ti ti-calendar-event"></i></span>
+                    <span class="nav-label">Agenda</span>
+                </button>
+                <span class="tooltip">Agenda</span>
+            </div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'bitacora'" (click)="setActive('bitacora')">
+                    <span class="nav-icon"><i class="ti ti-notebook"></i></span>
+                    <span class="nav-label">Bitácora</span>
+                </button>
+                <span class="tooltip">Bitácora</span>
+            </div>
+
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'historial'" (click)="setActive('historial')">
+                    <span class="nav-icon"><i class="ti ti-history"></i></span>
+                    <span class="nav-label">Historial</span>
+                </button>
+                <span class="tooltip">Historial</span>
+            </div>
+        </div>
+
+        <div class="sb-divider"></div>
+
+        <!-- Sistema -->
+        <div class="sb-section">
+            <div class="sb-section-label">Sistema</div>
+            <div class="tooltip-wrap">
+                <button class="nav-item" [class.active]="activeItem === 'config'" (click)="setActive('config')">
+                    <span class="nav-icon"><i class="ti ti-settings-2"></i></span>
+                    <span class="nav-label">Configuración</span>
+                </button>
+                <span class="tooltip">Configuración</span>
+            </div>
+        </div>
+
+    </nav>
+
+    <!-- Footer -->
+    <div class="sb-footer">
+        <div class="user-card">
+            <div class="avatar">{{ currentUser.initials }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ currentUser.fullName }}</div>
+                <div class="user-role">{{ currentUser.role }}</div>
+            </div>
+        </div>
+        <div class="tooltip-wrap">
+            <button class="logout-btn" (click)="logout()">
+                <i class="ti ti-logout"></i>
+                <span class="logout-label">Cerrar sesión</span>
+            </button>
+            <span class="tooltip">Cerrar sesión</span>
+        </div>
+    </div>
+
+</aside>

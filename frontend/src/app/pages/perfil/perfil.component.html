@@ -1,0 +1,143 @@
+<!-- Loading -->
+<div class="perfil-loading" *ngIf="loading">
+    <i class="ti ti-loader-2 spin"></i>
+</div>
+
+<div class="perfil" *ngIf="!loading && profile">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <h1 class="topbar__title">Mi perfil</h1>
+            <p class="topbar__sub">Información de tu cuenta</p>
+        </div>
+        <button class="btn-edit" (click)="goToEdit()">
+            <i class="ti ti-pencil"></i>
+            Editar perfil
+        </button>
+    </header>
+
+    <div class="perfil__body">
+
+        <!-- Hero card -->
+        <div class="hero-card">
+            <div class="hero-card__avatar-wrap">
+                <img *ngIf="profile.fotoPerfil" [src]="profile.fotoPerfil" [alt]="profile.nombreCompleto"
+                    class="hero-card__avatar-img" />
+                <div *ngIf="!profile.fotoPerfil" class="hero-card__avatar-placeholder">
+                    {{ getInitials() }}
+                </div>
+            </div>
+            <div class="hero-card__info">
+                <h2 class="hero-card__name">{{ profile.nombreCompleto }}</h2>
+                <span class="role-badge" [ngClass]="'role--' + profile.role">
+                    <i class="ti" [ngClass]="profile.role === 'mentor' ? 'ti-award' : 'ti-school'"></i>
+                    {{ profile.role === 'mentor' ? 'Mentor' : 'Estudiante' }}
+                </span>
+                <p class="hero-card__email">
+                    <i class="ti ti-mail"></i>
+                    {{ profile.correoInstitucional }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Grid de secciones -->
+        <div class="sections-grid">
+
+            <!-- Información personal -->
+            <div class="section-card">
+                <div class="section-card__header">
+                    <i class="ti ti-user-circle"></i>
+                    <h3>Información personal</h3>
+                </div>
+                <div class="fields">
+                    <div class="field">
+                        <span class="field__label">Nombre completo</span>
+                        <span class="field__value">{{ profile.nombreCompleto }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Tipo de identificación</span>
+                        <span class="field__value">{{ profile.tipoIdentificacion }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Número de identificación</span>
+                        <span class="field__value">{{ profile.numeroIdentificacion }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Fecha de nacimiento</span>
+                        <span class="field__value">{{ formatDate(profile.fechaNacimiento) }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Ciudad</span>
+                        <span class="field__value">{{ profile.ciudad }}</span>
+                    </div>
+                    <div class="field" *ngIf="profile.direccion">
+                        <span class="field__label">Dirección</span>
+                        <span class="field__value">{{ profile.direccion }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="section-card">
+                <div class="section-card__header">
+                    <i class="ti ti-address-book"></i>
+                    <h3>Contacto</h3>
+                </div>
+                <div class="fields">
+                    <div class="field">
+                        <span class="field__label">Correo institucional</span>
+                        <span class="field__value">{{ profile.correoInstitucional }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Número telefónico</span>
+                        <span class="field__value">{{ profile.numeroTelefonico }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info estudiante -->
+            <div class="section-card" *ngIf="profile.role === 'estudiante' && profile.estudianteInfo">
+                <div class="section-card__header">
+                    <i class="ti ti-book"></i>
+                    <h3>Información académica</h3>
+                </div>
+                <div class="fields">
+                    <div class="field">
+                        <span class="field__label">Programa académico</span>
+                        <span class="field__value">{{ profile.estudianteInfo!.programaAcademico }}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">Semestre actual</span>
+                        <span class="field__value">{{ profile.estudianteInfo!.semestre }}° semestre</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info mentor -->
+            <ng-container *ngIf="profile.role === 'mentor' && profile.mentorInfo">
+                <div class="section-card">
+                    <div class="section-card__header">
+                        <i class="ti ti-award"></i>
+                        <h3>Perfil de mentor</h3>
+                    </div>
+                    <div class="fields">
+                        <div class="field field--full">
+                            <span class="field__label">Descripción personal</span>
+                            <span class="field__value field__value--paragraph">
+                                {{ profile.mentorInfo!.descripcionPersonal }}
+                            </span>
+                        </div>
+                        <div class="field field--full">
+                            <span class="field__label">Formación académica</span>
+                            <span class="field__value field__value--paragraph">
+                                {{ profile.mentorInfo!.formacionAcademica }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+        </div>
+    </div>
+</div>
