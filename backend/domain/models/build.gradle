@@ -1,0 +1,6 @@
+jar { enabled = true }
+
+dependencies {
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.springframework:spring-context'
+}
