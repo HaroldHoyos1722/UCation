@@ -137,7 +137,12 @@
 
                     <!-- Forgot password -->
                     <div class="forgot-row">
-                        <a routerLink="/home" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                        <a class="forgot-link" role="button" tabindex="0" (click)="openForgotPassword()" (keydown.enter)="openForgotPassword()">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+
+                        <app-forgot-password-modal [isOpen]="forgotModalOpen" (closed)="forgotModalOpen = false">
+                        </app-forgot-password-modal>
                     </div>
 
                     <!-- Submit -->

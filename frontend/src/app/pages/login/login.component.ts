@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RegisterModalComponent } from '../register-modal/register-modal.component';
+import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, RegisterModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, RegisterModalComponent,ForgotPasswordModalComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -17,6 +18,7 @@ export class LoginComponent {
   showPassword = false;
   isLoading = false;
   showRegisterModal = false;
+  forgotModalOpen = false;
 
   logoSrc = '/EscudoPoli.png';
 
@@ -29,7 +31,6 @@ export class LoginComponent {
     this.isLoading = true;
     setTimeout(() => {
       this.isLoading = false;
-      console.log('Login con:', this.email);
     }, 1500);
   }
 
@@ -37,11 +38,15 @@ export class LoginComponent {
     this.showPassword = !this.showPassword;
   }
 
-  openRegister() {          
+  openRegister() {
     this.showRegisterModal = true;
   }
 
-  closeRegister() {         
+  closeRegister() {
     this.showRegisterModal = false;
+  }
+
+  openForgotPassword() {
+    this.forgotModalOpen = true;
   }
 }

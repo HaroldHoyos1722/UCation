@@ -75,20 +75,6 @@
 
         </div>
 
-        <div class="sb-divider"></div>
-
-        <!-- Sistema -->
-        <div class="sb-section">
-            <div class="sb-section-label">Sistema</div>
-            <div class="tooltip-wrap">
-                <button class="nav-item" [class.active]="activeItem === 'config'" (click)="setActive('config')">
-                    <span class="nav-icon"><i class="ti ti-settings-2"></i></span>
-                    <span class="nav-label">Configuración</span>
-                </button>
-                <span class="tooltip">Configuración</span>
-            </div>
-        </div>
-
     </nav>
 
     <!-- Footer -->
@@ -101,7 +87,7 @@
             </div>
         </div>
         <div class="tooltip-wrap">
-            <button class="logout-btn" (click)="logout()">
+            <button class="logout-btn" (click)="logout()" routerLink="">
                 <i class="ti ti-logout"></i>
                 <span class="logout-label">Cerrar sesión</span>
             </button>

@@ -398,6 +398,24 @@
     text-decoration: none;
 }
 
+/* Improved interaction styles for forgot password link */
+.forgot-link {
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease, opacity 0.15s ease;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+    opacity: 0.95;
+}
+
+.forgot-link:focus {
+    outline: 3px solid rgba(26,92,26,0.12);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
 .forgot-link:hover {
     text-decoration: underline;
 }

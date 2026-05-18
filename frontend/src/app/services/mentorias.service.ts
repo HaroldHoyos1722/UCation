@@ -44,6 +44,15 @@ export interface SesionForm {
     observaciones: string;
 }
 
+export interface CalificacionMentor {
+    sesionId: string;
+    claridad: number;
+    dominio: number;
+    aprendizaje: number;
+    comunicacion: number;
+    satisfaccion: number;
+}
+
 // ── Servicio ─────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
@@ -81,6 +90,11 @@ export class MentoriasService {
 
     cancelarSesion(sesionId: string): Observable<{ success: boolean }> {
         console.log('Cancelar sesión:', sesionId);
+        return of({ success: true });
+    }
+
+    calificarMentor(data: CalificacionMentor): Observable<{ success: boolean }> {
+        console.log('Calificación enviada:', data);
         return of({ success: true });
     }
 }

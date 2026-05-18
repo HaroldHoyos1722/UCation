@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   MentoriasService, Mentoria, Sesion,
-  SesionForm, UserRole, EstadoMentoria
+  SesionForm, UserRole, EstadoMentoria, CalificacionMentor
 } from '../../services/mentorias.service';
 import { EstadoFilterPipe } from './estado-filter.pipe';
 
@@ -25,8 +25,11 @@ interface CalendarDay {
 export class MentoriasComponent implements OnInit {
 
   // TODO: obtener del AuthService cuando esté el backend
-  currentRole: UserRole = 'mentor';
-  currentUserId = 'm1';
+  //currentRole: UserRole = 'mentor';
+  //currentUserId = 'm1';
+
+  currentRole: UserRole = 'estudiante';
+  currentUserId = 'e1';
 
   mentorias: Mentoria[] = [];
   loading = true;
@@ -46,6 +49,11 @@ export class MentoriasComponent implements OnInit {
   // Modal detalle mentoría
   mentoriaDetalle: Mentoria | null = null;
 
+  modalCalificacionAbierto = false;
+  sesionCalificando: Sesion | null = null;
+
+  calificacionForm: CalificacionMentor = this.calificacionVacia();
+
   // Calendario
   calendarYear = new Date().getFullYear();
   calendarMonth = new Date().getMonth();
@@ -61,6 +69,16 @@ export class MentoriasComponent implements OnInit {
   readonly MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   readonly DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  readonly CAMPOS_CALIFICACION: {
+    key: keyof Omit<CalificacionMentor, 'sesionId' | 'comentario'>;
+    label: string;
+  }[] = [
+      { key: 'claridad', label: 'Claridad de la explicación' },
+      { key: 'dominio', label: 'Dominio del tema' },
+      { key: 'aprendizaje', label: 'Ayuda al aprendizaje' },
+      { key: 'comunicacion', label: 'Comunicación' },
+      { key: 'satisfaccion', label: 'Satisfacción general' }
+    ];
 
   constructor(private mentoriasService: MentoriasService) { }
 
@@ -267,10 +285,48 @@ export class MentoriasComponent implements OnInit {
     this.buildCalendar();
   }
 
+  abrirModalCalificacion(sesion: Sesion): void {
+    this.sesionCalificando = sesion;
+    this.calificacionForm = {
+      ...this.calificacionVacia(),
+      sesionId: sesion.id
+    };
+    this.modalCalificacionAbierto = true;
+  }
+
+  cerrarModalCalificacion(): void {
+    this.modalCalificacionAbierto = false;
+    this.sesionCalificando = null;
+    this.calificacionForm = this.calificacionVacia();
+  }
+
+  setRating(field: keyof Omit<CalificacionMentor, 'sesionId' | 'comentario'>, value: number): void {
+    this.calificacionForm[field] = value;
+  }
+
+  guardarCalificacion(): void {
+    this.mentoriasService.calificarMentor(this.calificacionForm).subscribe({
+      next: () => {
+        this.cerrarModalCalificacion();
+      }
+    });
+  }
+
   // ── Helpers ─────────────────────────────────────────────────
 
   private formVacio(): SesionForm {
     return { fecha: '', hora: '', duracionMinutos: 45, lugar: '', observaciones: '' };
+  }
+
+  private calificacionVacia(): CalificacionMentor {
+    return {
+      sesionId: '',
+      claridad: 0,
+      dominio: 0,
+      aprendizaje: 0,
+      comunicacion: 0,
+      satisfaccion: 0
+    };
   }
 
   formatFecha(iso: string): string {
@@ -293,5 +349,28 @@ export class MentoriasComponent implements OnInit {
     const tieneEstudiante = !!this.mentoriaActivaSesion;
     return !!(tieneEstudiante && f.fecha && f.hora && f.lugar &&
       f.duracionMinutos >= 30 && f.duracionMinutos <= 60);
+  }
+
+  get calificacionPromedio(): number {
+    const valores = [
+      this.calificacionForm.claridad,
+      this.calificacionForm.dominio,
+      this.calificacionForm.aprendizaje,
+      this.calificacionForm.comunicacion,
+      this.calificacionForm.satisfaccion
+    ];
+
+    const suma = valores.reduce((a, b) => a + b, 0);
+    return +(suma / 5).toFixed(1);
+  }
+
+  get calificacionCompleta(): boolean {
+    return (
+      this.calificacionForm.claridad > 0 &&
+      this.calificacionForm.dominio > 0 &&
+      this.calificacionForm.aprendizaje > 0 &&
+      this.calificacionForm.comunicacion > 0 &&
+      this.calificacionForm.satisfaccion > 0
+    );
   }
 }
