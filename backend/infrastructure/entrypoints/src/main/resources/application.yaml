@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT:8080}
   servlet:
     context-path: /rest/v1.0/ucation
 spring:
@@ -9,9 +9,9 @@ spring:
     java: 21
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5433/ucation
-    username: postgres
-    password: admin123456
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
@@ -21,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ucationnotificaciones@gmail.com
-    password: ofbzlqhnkzwhlewy
+    username: ${CORREO_NOTIFICACIONES}
+    password: ${CONTRASENA_CORREO_NOTI}
     properties:
       mail:
         smtp:
@@ -34,24 +34,13 @@ logging:
     root: INFO
 
 key:
-  secret: KEY_SECRET_POLIJIC_UCATION_2026!
+  secret: ${SECRET_KEY}
 
 tiempo:
-  recuperarContrasena: 15
+  recuperarContrasena: ${TIEMPO_RECUPÉRAR_CONTRA_MIN}
 
 jwt:
-  secret: JWT_SECRET_POLIJIC_UCATION_2026!!
-  expiracion: 3600000
+  secret: ${SECRET_JWT}
+  expiracion: ${TIEMPO_EXPIRACION_JWT}
 
 urlexcluirfilter: /rest/v1.0/ucation/login,/rest/v1.0/ucation/usuario/registrar,/rest/v1.0/ucation/recuperar-contrasena/**
-
-postgresql:
-  driverClassName: org.postgresql.Driver
-  url: jdbc:postgresql://127.0.0.1:5433/ucation
-  user: postgres
-  pass: admin123456
-  dialect: org.hibernate.dialect.PostgreSQLDialect
-  hibernate:
-    show_sql: true
-    hbm2ddl:
-      auto: none
