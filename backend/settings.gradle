@@ -1,0 +1,13 @@
+rootProject.name = 'ucation'
+
+include ':models'
+include ':usecases'
+include ':driven-postgresql'
+include ':driven-mail'
+include ':entrypoints'
+
+project(':models').projectDir = file('./domain/models')
+project(':usecases').projectDir = file('./applications/usecases')
+project(':driven-postgresql').projectDir = file('./infrastructure/driven-adapters/postgresql-db')
+project(':driven-mail').projectDir = file('./infrastructure/driven-adapters/mail-driven')
+project(':entrypoints').projectDir = file('./infrastructure/entrypoints')

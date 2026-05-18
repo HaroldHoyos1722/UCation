@@ -1,0 +1,57 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /rest/v1.0/ucation
+spring:
+  application:
+    name: ucation
+    version: 1.0.0
+    java: 21
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5433/ucation
+    username: postgres
+    password: admin123456
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ucationnotificaciones@gmail.com
+    password: ofbzlqhnkzwhlewy
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+logging:
+  level:
+    root: INFO
+
+key:
+  secret: KEY_SECRET_POLIJIC_UCATION_2026!
+
+tiempo:
+  recuperarContrasena: 15
+
+jwt:
+  secret: JWT_SECRET_POLIJIC_UCATION_2026!!
+  expiracion: 3600000
+
+urlexcluirfilter: /rest/v1.0/ucation/login,/rest/v1.0/ucation/usuario/registrar,/rest/v1.0/ucation/recuperar-contrasena/**
+
+postgresql:
+  driverClassName: org.postgresql.Driver
+  url: jdbc:postgresql://127.0.0.1:5433/ucation
+  user: postgres
+  pass: admin123456
+  dialect: org.hibernate.dialect.PostgreSQLDialect
+  hibernate:
+    show_sql: true
+    hbm2ddl:
+      auto: none

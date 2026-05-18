@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'io.spring.dependency-management'
+}
+
+dependencies {
+    implementation project(':models')
+    implementation project(':usecases')
+    implementation project(':driven-postgresql')
+    implementation project(':driven-mail')
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly 'org.postgresql:postgresql:42.7.2'
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+}
+
+bootRun {
+    enabled = true
+}
+
+bootJar {
+    enabled = true
+    mainClass.set('co.com.polijic.ucation.entrypoints.UcationApplication')
+
+    from {
+        subprojects.collect { it.sourceSets.main.output }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-parameters']
+}
+
+jar {
+    enabled = true
+}
