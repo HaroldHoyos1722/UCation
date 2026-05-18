@@ -49,6 +49,14 @@
                 </button>
             </div>
 
+            <!-- Botón programar sesión (solo mentor) -->
+            <div class="list-actions" *ngIf="currentRole === 'mentor'">
+                <button class="btn-outline-gold" (click)="abrirModalSesion(null)">
+                    <i class="ti ti-calendar-plus"></i>
+                    Programar sesión
+                </button>
+            </div>
+
             <!-- Empty state -->
             <div class="empty-state" *ngIf="mentoriasFiltradas.length === 0">
                 <i class="ti ti-school-off"></i>
@@ -142,48 +150,178 @@
 
         <!-- ── VISTA CALENDARIO ── -->
         <ng-container *ngIf="activeTab === 'calendario'">
-            <div class="calendar-wrap">
+            <div class="cal-layout">
 
-                <div class="calendar-nav">
-                    <button class="cal-nav-btn" (click)="prevMonth()">
-                        <i class="ti ti-chevron-left"></i>
-                    </button>
-                    <h3 class="cal-title">{{ MESES[calendarMonth] }} {{ calendarYear }}</h3>
-                    <button class="cal-nav-btn" (click)="nextMonth()">
-                        <i class="ti ti-chevron-right"></i>
-                    </button>
+                <!-- Calendario -->
+                <div class="calendar-wrap">
+
+                    <div class="calendar-nav">
+                        <button class="cal-nav-btn" (click)="prevMonth()">
+                            <i class="ti ti-chevron-left"></i>
+                        </button>
+                        <div class="cal-nav-center">
+                            <h3 class="cal-title">{{ MESES[calendarMonth] }} {{ calendarYear }}</h3>
+                            <button class="cal-today-btn" (click)="calendarYear = today.getFullYear();
+                           calendarMonth = today.getMonth();
+                           buildCalendar()">
+                                Hoy
+                            </button>
+                        </div>
+                        <button class="cal-nav-btn" (click)="nextMonth()">
+                            <i class="ti ti-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <table class="calendar">
+                        <thead>
+                            <tr>
+                                <th *ngFor="let d of DIAS">{{ d }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let week of calendarWeeks">
+                                <td *ngFor="let day of week" [class.today]="day.isToday"
+                                    [class.has-session]="day.sesiones.length > 0 && !day.isToday"
+                                    [class.empty]="day.date === null" [class.pasado]="isPasado(day)"
+                                    [class.selected]="diaSeleccionado?.date === day.date" (click)="seleccionarDia(day)">
+
+                                    <span class="cal-day-num">{{ day.date !== null ? day.date : '' }}</span>
+
+                                    <!-- Puntos por sesión (máx 3) -->
+                                    <div class="cal-dots" *ngIf="day.sesiones.length > 0">
+                                        <span class="cal-dot" *ngFor="let s of day.sesiones.slice(0,3)">
+                                        </span>
+                                        <span class="cal-dot-more" *ngIf="day.sesiones.length > 3">
+                                            +{{ day.sesiones.length - 3 }}
+                                        </span>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="calendar-legend">
+                        <span class="legend-item">
+                            <span class="legend-dot legend-dot--today"></span> Hoy
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-dot legend-dot--session"></span> Sesión programada
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-dot legend-dot--selected"></span> Seleccionado
+                        </span>
+                    </div>
+
                 </div>
 
-                <table class="calendar">
-                    <thead>
-                        <tr>
-                            <th *ngFor="let d of DIAS">{{ d }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let week of calendarWeeks">
-                            <td *ngFor="let day of week" [class.today]="day.isToday"
-                                [class.has-session]="day.sesiones.length > 0 && !day.isToday"
-                                [class.empty]="day.date === null">
-                                <span class="cal-day-num">{{ day.date !== null ? day.date : '' }}</span>
-                                <span class="cal-session-dot" *ngIf="day.sesiones.length > 0"></span>
-                                <div class="cal-tooltip" *ngIf="day.sesiones.length > 0">
-                                    <div *ngFor="let s of day.sesiones" class="cal-tooltip-item">
-                                        <strong>{{ s.hora }}</strong> · {{ s.lugar }}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Panel lateral del día seleccionado -->
+                <div class="day-panel" [class.day-panel--active]="diaSeleccionado">
 
-                <div class="calendar-legend">
-                    <span class="legend-item">
-                        <span class="legend-dot legend-dot--today"></span> Hoy
-                    </span>
-                    <span class="legend-item">
-                        <span class="legend-dot legend-dot--session"></span> Sesión programada
-                    </span>
+                    <!-- Sin día seleccionado -->
+                    <div class="day-panel__empty" *ngIf="!diaSeleccionado">
+                        <i class="ti ti-calendar-search"></i>
+                        <p>Selecciona un día para ver o programar sesiones</p>
+                    </div>
+
+                    <!-- Día seleccionado -->
+                    <ng-container *ngIf="diaSeleccionado">
+
+                        <div class="day-panel__header">
+                            <div>
+                                <h3 class="day-panel__title">
+                                    {{ diaSeleccionado.date }} de {{ MESES[calendarMonth] }}
+                                </h3>
+                                <p class="day-panel__sub">
+                                    {{ diaSeleccionado.sesiones.length === 0
+                                    ? 'Sin sesiones'
+                                    : diaSeleccionado.sesiones.length + ' sesión(es) programada(s)' }}
+                                </p>
+                            </div>
+                            <button class="day-panel__close" (click)="diaSeleccionado = null">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+
+                        <!-- Sesiones del día -->
+                        <div class="day-sessions" *ngIf="diaSeleccionado.sesiones.length > 0">
+                            <div class="day-session-item" *ngFor="let sesion of diaSeleccionado.sesiones">
+
+                                <div class="day-session-hora">
+                                    <span>{{ sesion.hora }}</span>
+                                    <span class="day-session-dur">{{ sesion.duracionMinutos }}min</span>
+                                </div>
+
+                                <div class="day-session-info">
+                                    <p class="day-session-lugar">
+                                        <i class="ti ti-map-pin"></i> {{ sesion.lugar }}
+                                    </p>
+                                    <p class="day-session-obs" *ngIf="sesion.observaciones">
+                                        {{ sesion.observaciones }}
+                                    </p>
+                                    <!-- Mentoria asociada -->
+                                    <p class="day-session-mentor">
+                                        <ng-container *ngFor="let m of getMentoriasConSesionEnDia(diaSeleccionado)">
+                                            <ng-container *ngIf="tieneSesion(m, sesion.id)">
+                                                <span class="mini-avatar"
+                                                    [style.background]="(currentRole === 'estudiante' ? m.mentorColor : m.estudianteColor) + '22'"
+                                                    [style.color]="currentRole === 'estudiante' ? m.mentorColor : m.estudianteColor">
+                                                    {{ currentRole === 'estudiante' ? m.mentorIniciales :
+                                                    m.estudianteIniciales }}
+                                                </span>
+                                                {{ currentRole === 'estudiante' ? m.mentorNombre : m.estudianteNombre }}
+                                            </ng-container>
+                                        </ng-container>
+                                    </p>
+                                </div>
+
+                                <!-- Acciones (solo mentor) -->
+                                <div class="day-session-actions" *ngIf="currentRole === 'mentor'">
+                                    <button class="btn-icon" title="Reprogramar"
+                                        (click)="abrirModalSesion(getMentoriasConSesionEnDia(diaSeleccionado)[0], sesion)">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>
+                                    <button class="btn-icon btn-icon--danger" title="Cancelar"
+                                        (click)="cancelarSesion(getMentoriasConSesionEnDia(diaSeleccionado)[0], sesion)">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Sin sesiones en el día -->
+                        <div class="day-empty" *ngIf="diaSeleccionado.sesiones.length === 0">
+                            <i class="ti ti-calendar-off"></i>
+                            <p>No hay sesiones este día</p>
+                        </div>
+
+                        <!-- Programar desde el día (solo mentor con mentorías aceptadas) -->
+                        <div class="day-panel__footer" *ngIf="currentRole === 'mentor' && !isPasado(diaSeleccionado)">
+                            <p class="day-panel__footer-label">¿Programar una sesión este día?</p>
+                            <div class="day-mentoria-select">
+                                <button class="btn-mentoria-opt"
+                                    *ngFor="let m of mentoriasFiltradas | estadoFilter: 'aceptada'"
+                                    (click)="programarDesdeDia(m)">
+                                    <span class="mini-avatar" [style.background]="m.estudianteColor + '22'"
+                                        [style.color]="m.estudianteColor">
+                                        {{ m.estudianteIniciales }}
+                                    </span>
+                                    {{ m.estudianteNombre }}
+                                    <i class="ti ti-calendar-plus"></i>
+                                </button>
+                            </div>
+                            <p class="day-panel__footer-hint"
+                                *ngIf="(mentoriasFiltradas | estadoFilter: 'aceptada').length === 0">
+                                No tienes mentorías aceptadas para programar.
+                            </p>
+                        </div>
+
+                        <div class="day-panel__footer day-panel__footer--pasado" *ngIf="isPasado(diaSeleccionado)">
+                            <i class="ti ti-lock"></i> Fecha pasada — no se pueden programar sesiones
+                        </div>
+
+                    </ng-container>
                 </div>
 
             </div>
@@ -293,8 +431,31 @@
         </div>
 
         <div class="modal__body">
-
             <div class="form-grid">
+
+                <!-- Select de estudiante -->
+                <div class="form-field form-field--full" *ngIf="!mentoriaActivaSesion && currentRole === 'mentor'">
+                    <label class="form-label">Estudiante *</label>
+                    <select class="form-input" [(ngModel)]="estudianteSeleccionadoId"
+                        (ngModelChange)="onEstudianteChange($event)">
+                        <option value="">Selecciona un estudiante</option>
+                        <option *ngFor="let m of mentoriasFiltradas | estadoFilter: 'aceptada'" [value]="m.id">
+                            {{ m.estudianteNombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Estudiante fijo si viene de una mentoría -->
+                <div class="form-field form-field--full" *ngIf="mentoriaActivaSesion">
+                    <label class="form-label">Estudiante</label>
+                    <div class="form-static">
+                        <span class="mini-avatar" [style.background]="mentoriaActivaSesion.estudianteColor + '22'"
+                            [style.color]="mentoriaActivaSesion.estudianteColor">
+                            {{ mentoriaActivaSesion.estudianteIniciales }}
+                        </span>
+                        {{ mentoriaActivaSesion.estudianteNombre }}
+                    </div>
+                </div>
 
                 <div class="form-field">
                     <label class="form-label">Fecha *</label>
@@ -306,11 +467,26 @@
                     <input class="form-input" type="time" [(ngModel)]="sesionForm.hora" />
                 </div>
 
-                <div class="form-field">
-                    <label class="form-label">Duración *</label>
-                    <select class="form-input" [(ngModel)]="sesionForm.duracionMinutos">
-                        <option *ngFor="let d of DURACIONES" [value]="d">{{ d }} minutos</option>
-                    </select>
+                <div class="form-field form-field--full">
+                    <label class="form-label">
+                        Duración *
+                        <span class="form-label-hint">(entre 30 y 60 minutos)</span>
+                    </label>
+                    <div class="duration-wrap">
+                        <input class="form-input form-input--duration" type="number" min="30" max="60" step="5"
+                            [(ngModel)]="sesionForm.duracionMinutos" />
+                        <div class="duration-btns">
+                            <button class="dur-preset" *ngFor="let d of DURACIONES"
+                                [class.dur-preset--active]="sesionForm.duracionMinutos === d"
+                                (click)="sesionForm.duracionMinutos = d">
+                                {{ d }}min
+                            </button>
+                        </div>
+                    </div>
+                    <p class="form-hint" *ngIf="sesionForm.duracionMinutos < 30 || sesionForm.duracionMinutos > 60">
+                        <i class="ti ti-alert-circle"></i>
+                        La duración debe estar entre 30 y 60 minutos.
+                    </p>
                 </div>
 
                 <div class="form-field form-field--full">
@@ -325,13 +501,7 @@
                         placeholder="Temas a tratar, materiales necesarios..." rows="3"></textarea>
                 </div>
 
-                <p class="form-hint form-field--full">
-                    <i class="ti ti-info-circle"></i>
-                    La duración debe ser entre 30 y 60 minutos.
-                </p>
-
             </div>
-
         </div>
 
         <div class="modal__footer">

@@ -5,7 +5,7 @@
     flex-direction: column;
     flex: 1;
     height: 100vh;
-    overflow: hidden;
+    overflow: auto;
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: #f5f7f5;
     color: #1b2e1c;
@@ -78,7 +78,7 @@
     flex-direction: column;
     gap: 16px;
     scrollbar-width: thin;
-    scrollbar-color: #c8e6c9 transparent;
+    scrollbar-color: rgba(46, 125, 50, 0.86) transparent;
 }
 
 /* ── Filtros estado ── */
@@ -883,4 +883,437 @@ select.form-input option {
 .spin {
     animation: spin 1s linear infinite;
     display: block;
+}
+
+/* ── Layout calendario + panel ── */
+.cal-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    align-items: start;
+}
+
+/* ── Navegación mejorada ── */
+.cal-nav-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cal-today-btn {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border: 1px solid #d8e8d8;
+    border-radius: 6px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all 0.2s;
+}
+
+.cal-today-btn:hover {
+    background: #2e7d32;
+    color: #fff;
+}
+
+/* ── Celdas mejoradas ── */
+.calendar td {
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 8px;
+    min-width: 36px;
+    min-height: 52px;
+    vertical-align: top;
+    padding: 6px 4px 4px;
+    position: relative;
+}
+
+.calendar td.empty {
+    cursor: default;
+}
+
+.calendar td.pasado .cal-day-num {
+    color: #ccc;
+}
+
+.calendar td.pasado {
+    cursor: pointer;
+}
+
+.calendar td.selected {
+    background: #e8f5e9 !important;
+    outline: 2px solid #2e7d32;
+    outline-offset: -2px;
+}
+
+.calendar td:hover:not(.empty) {
+    background: #f5f7f5;
+}
+
+/* ── Puntos de sesión ── */
+.cal-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 3px;
+    flex-wrap: wrap;
+}
+
+.cal-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #c9a227;
+    display: block;
+}
+
+.calendar td.today .cal-dot {
+    background: #fff;
+}
+
+.cal-dot-more {
+    font-size: 9px;
+    font-weight: 700;
+    color: #c9a227;
+    line-height: 1;
+}
+
+/* ── Panel lateral ── */
+.day-panel {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.day-panel--active {
+    box-shadow: 0 4px 20px rgba(46, 125, 50, 0.1);
+}
+
+.day-panel__empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #ccc;
+    padding: 32px;
+    text-align: center;
+}
+
+.day-panel__empty i {
+    font-size: 36px;
+}
+
+.day-panel__empty p {
+    font-size: 13px;
+    color: #bbb;
+    margin: 0;
+}
+
+.day-panel__header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.day-panel__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1b5e20;
+    margin: 0 0 2px;
+}
+
+.day-panel__sub {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+}
+
+.day-panel__close {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.day-panel__close:hover {
+    background: #f5f5f5;
+    color: #555;
+}
+
+/* ── Sesiones del día ── */
+.day-sessions {
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.day-session-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f9fbf9;
+    border-left: 3px solid #2e7d32;
+}
+
+.day-session-hora {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 42px;
+}
+
+.day-session-hora span {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2e7d32;
+    line-height: 1;
+}
+
+.day-session-dur {
+    font-size: 10px !important;
+    color: #aaa !important;
+    font-weight: 500 !important;
+    margin-top: 2px;
+}
+
+.day-session-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.day-session-lugar {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin: 0 0 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.day-session-lugar i {
+    color: #2e7d32;
+    font-size: 11px;
+}
+
+.day-session-obs {
+    font-size: 11.5px;
+    color: #888;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.day-session-mentor {
+    font-size: 11.5px;
+    color: #666;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mini-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.day-session-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* ── Sin sesiones ── */
+.day-empty {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    text-align: center;
+}
+
+.day-empty i {
+    font-size: 28px;
+}
+
+.day-empty p {
+    font-size: 13px;
+    color: #bbb;
+    margin: 0;
+}
+
+/* ── Footer panel ── */
+.day-panel__footer {
+    margin-top: auto;
+    padding: 14px 18px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.day-panel__footer-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #888;
+    margin: 0;
+}
+
+.day-panel__footer-hint {
+    font-size: 12px;
+    color: #bbb;
+    margin: 0;
+}
+
+.day-mentoria-select {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.btn-mentoria-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f5f7f5;
+    border: 1px solid #d8e8d8;
+    border-radius: 8px;
+    color: #2e7d32;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.btn-mentoria-opt:hover {
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+}
+
+.btn-mentoria-opt .ti-calendar-plus {
+    margin-left: auto;
+    color: #a5d6a7;
+    font-size: 15px;
+}
+
+.day-panel__footer--pasado {
+    background: #fafafa;
+    color: #bbb;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-direction: row;
+}
+
+/* ── Acciones lista ── */
+.list-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ── Duración ── */
+.duration-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-input--duration {
+    width: 90px;
+    flex-shrink: 0;
+}
+
+.duration-btns {
+    display: flex;
+    gap: 6px;
+}
+
+.dur-preset {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d8e8d8;
+    border-radius: 8px;
+    background: #f9fbf9;
+    color: #555;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dur-preset:hover {
+    border-color: #2e7d32;
+    color: #2e7d32;
+}
+
+.dur-preset--active {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #ffffff;
+}
+
+.form-label-hint {
+    font-size: 10px;
+    font-weight: 400;
+    color: #aaa;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* ── Estudiante fijo en modal ── */
+.form-static {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    background: #f0f4f0;
+    border: 1px solid #d8e8d8;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2e7d32;
 }

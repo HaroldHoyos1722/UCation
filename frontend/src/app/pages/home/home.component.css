@@ -5,7 +5,7 @@
     flex-direction: column;
     flex: 1;
     height: 100vh;
-    overflow: hidden;
+    overflow: auto;
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--white);
     color: var(--gray-text);
@@ -72,7 +72,7 @@
     flex-direction: column;
     gap: 20px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    scrollbar-color: rgba(46, 125, 50, 0.86) transparent;
 }
 
 /* ── Welcome banner ── */
@@ -164,30 +164,32 @@
 
 /* ── Quick actions ── */
 .quick-actions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    justify-content: center;
     gap: 12px;
 }
 
 .quick-btn {
-    height: 52px;
+    height: 64px;
+    padding: 12px 22px;
+    min-width: 220px;
     background: var(--white);
     border: 1px solid rgba(209, 213, 219, 0.8);
-    border-radius: 11px;
+    border-radius: 12px;
     color: var(--gray-text);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     font-family: 'Plus Jakarta Sans', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .quick-btn i {
-    font-size: 16px;
+    font-size: 18px;
     color: var(--green-main);
 }
 
@@ -483,4 +485,83 @@
 .spin {
     animation: spin 1s linear infinite;
     display: block;
+}
+
+/* ── Quick actions con 3 botones ── */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+/* ── Cards navegables ── */
+.card--link {
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.card--link:hover {
+    border-color: rgba(46, 125, 50, 0.3);
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.08);
+}
+
+/* ── Shortcut dentro de card ── */
+.card-shortcut {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+}
+
+.shortcut-stat__value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green-main);
+    line-height: 1;
+    display: block;
+}
+
+.shortcut-stat__label {
+    font-size: 12px;
+    color: var(--gray-text);
+    margin-top: 4px;
+    display: block;
+}
+
+.shortcut-arrow {
+    font-size: 28px;
+    color: var(--gray-light);
+}
+
+.card--link:hover .shortcut-arrow {
+    color: var(--green-main);
+}
+
+/* ── Notificaciones ── */
+.notif-wrap {
+    position: relative;
+}
+
+.icon-btn {
+    position: relative;
+}
+
+.notif-counter {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 9px;
+    background: #c62828;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    pointer-events: none;
+    border: 2px solid #166f2b;
 }

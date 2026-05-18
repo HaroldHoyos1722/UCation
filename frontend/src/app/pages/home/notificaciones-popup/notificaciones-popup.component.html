@@ -1,0 +1,48 @@
+<div class="popup-backdrop" (click)="cerrar.emit()"></div>
+
+<div class="popup">
+
+    <!-- Header -->
+    <div class="popup__header">
+        <div class="popup__header-left">
+            <h3 class="popup__title">Notificaciones</h3>
+            <span class="popup__badge" *ngIf="noLeidas > 0">{{ noLeidas }}</span>
+        </div>
+        <button class="popup__marcar-todas" *ngIf="noLeidas > 0" (click)="marcarTodasLeidas()">
+            Marcar todas como leídas
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="popup__loading" *ngIf="loading">
+        <i class="ti ti-loader-2 spin"></i>
+    </div>
+
+    <!-- Empty -->
+    <div class="popup__empty" *ngIf="!loading && notificaciones.length === 0">
+        <i class="ti ti-bell-off"></i>
+        <p>Sin notificaciones</p>
+    </div>
+
+    <!-- Lista -->
+    <div class="popup__list" *ngIf="!loading && notificaciones.length > 0">
+        <div class="notif-item" *ngFor="let n of notificaciones" [class.notif-item--leida]="n.leida"
+            (click)="marcarLeida(n, $event)">
+            <!-- Icono -->
+            <div class="notif-icono" [style.background]="getColor(n.tipo) + '18'" [style.color]="getColor(n.tipo)">
+                <i class="ti" [ngClass]="getIcono(n.tipo)"></i>
+            </div>
+
+            <!-- Contenido -->
+            <div class="notif-content">
+                <p class="notif-titulo">{{ n.titulo }}</p>
+                <p class="notif-mensaje">{{ n.mensaje }}</p>
+                <span class="notif-fecha">{{ formatFecha(n.fecha) }}</span>
+            </div>
+
+            <!-- Punto no leída -->
+            <span class="notif-dot" *ngIf="!n.leida"></span>
+        </div>
+    </div>
+
+</div>

@@ -5,7 +5,7 @@
     flex-direction: column;
     flex: 1;
     height: 100vh;
-    overflow: hidden;
+    overflow: auto;
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--white);
     color: var(--gray-text);
@@ -45,7 +45,7 @@
     flex-direction: column;
     gap: 20px;
     scrollbar-width: thin;
-    scrollbar-color: #d0d0d0 transparent;
+    scrollbar-color: rgba(46, 125, 50, 0.86) transparent;
 }
 
 /* ── Filtros ── */

@@ -30,3 +30,34 @@ body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
 }
+
+/* Scrollbar moderno verde */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(46, 125, 50, 0.86) rgba(0, 0, 0, 0.08);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(46, 125, 50, 0.85);
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(46, 125, 50, 0.98);
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0.08);
+}

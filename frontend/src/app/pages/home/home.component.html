@@ -1,182 +1,184 @@
+<div class="home" *ngIf="!loading && data">
 
-    <div class="home" *ngIf="!loading && data">
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="topbar__left">
-                <h1 class="topbar__title">Dashboard</h1>
-                <p class="topbar__date">{{ data.currentDate }}</p>
-            </div>
-            <div class="topbar__actions">
-                <button class="icon-btn" aria-label="Notificaciones">
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <h1 class="topbar__title">Dashboard</h1>
+            <p class="topbar__date">{{ data.currentDate }}</p>
+        </div>
+        <div class="topbar__actions">
+            <div class="notif-wrap">
+                <button class="icon-btn" aria-label="Notificaciones" (click)="togglePopup()">
                     <i class="ti ti-bell"></i>
+                    <span class="notif-counter" *ngIf="notificacionesSinLeer > 0">
+                        {{ notificacionesSinLeer > 9 ? '9+' : notificacionesSinLeer }}
+                    </span>
                 </button>
-                <button class="icon-btn" aria-label="Configuración">
-                    <i class="ti ti-settings"></i>
-                </button>
+
+                <app-notificaciones-popup *ngIf="popupAbierto" (cerrar)="popupAbierto = false"
+                    (sinLeer)="notificacionesSinLeer = $event">
+                </app-notificaciones-popup>
             </div>
-        </header>
+            <button class="icon-btn" aria-label="Configuración" routerLink="/perfil">
+                <i class="ti ti-settings"></i>
+            </button>
+        </div>
+    </header>
 
-        <div class="home__body">
+    <div class="home__body">
 
-            <!-- Bienvenida -->
-            <div class="welcome-banner">
-                <div class="welcome-banner__text">
-                    <p class="welcome-banner__greeting">{{ data.greeting }}</p>
-                    <p class="welcome-banner__sub">{{ data.greetingSubtitle }}</p>
-                </div>
-                <button class="btn-primary">
-                    <i class="ti ti-plus"></i>
-                    Solicitar mentoría
-                </button>
+        <!-- Bienvenida -->
+        <div class="welcome-banner">
+            <div class="welcome-banner__text">
+                <p class="welcome-banner__greeting">{{ data.greeting }}</p>
+                <p class="welcome-banner__sub">{{ data.greetingSubtitle }}</p>
             </div>
+            <button class="btn-primary" routerLink="/mentores">
+                <i class="ti ti-plus"></i>
+                Solicitar mentoría
+            </button>
+        </div>
 
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="ti ti-school stat-card__icon"></i>
-                    <span class="stat-card__value">{{ data.stats.mentoriasActivas }}</span>
-                    <span class="stat-card__label">Mentorías activas</span>
-                </div>
-                <div class="stat-card">
-                    <i class="ti ti-calendar-week stat-card__icon"></i>
-                    <span class="stat-card__value">{{ data.stats.sesionesEstaSemana }}</span>
-                    <span class="stat-card__label">Sesiones esta semana</span>
-                </div>
-                <div class="stat-card">
-                    <i class="ti ti-notebook stat-card__icon"></i>
-                    <span class="stat-card__value">{{ data.stats.entradasBitacora }}</span>
-                    <span class="stat-card__label">Entradas en bitácora</span>
-                </div>
-                <div class="stat-card">
-                    <i class="ti ti-star stat-card__icon accent"></i>
-                    <span class="stat-card__value">{{ data.stats.calificacionPromedio }}</span>
-                    <span class="stat-card__label">Calificación promedio</span>
-                </div>
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" routerLink="/mentorias" style="cursor:pointer">
+                <i class="ti ti-school stat-card__icon"></i>
+                <span class="stat-card__value">{{ data.stats.mentoriasActivas }}</span>
+                <span class="stat-card__label">Mentorías activas</span>
             </div>
-
-            <!-- Acciones rápidas -->
-            <div class="quick-actions">
-                <button class="quick-btn">
-                    <i class="ti ti-plus"></i>
-                    <span>Solicitar mentoría</span>
-                </button>
-                <button class="quick-btn">
-                    <i class="ti ti-calendar-plus"></i>
-                    <span>Programar sesión</span>
-                </button>
-                <button class="quick-btn">
-                    <i class="ti ti-pencil"></i>
-                    <span>Nueva entrada bitácora</span>
-                </button>
+            <div class="stat-card" routerLink="/mentorias" style="cursor:pointer">
+                <i class="ti ti-calendar-week stat-card__icon"></i>
+                <span class="stat-card__value">{{ data.stats.sesionesEstaSemana }}</span>
+                <span class="stat-card__label">Sesiones esta semana</span>
             </div>
-
-            <!-- Grid inferior -->
-            <div class="bottom-grid">
-
-                <!-- Mis mentorías -->
-                <div class="card">
-                    <div class="card__header">
-                        <span class="card__title">
-                            <i class="ti ti-school"></i> Mis mentorías
-                        </span>
-                        <button class="link-btn">Ver todas →</button>
-                    </div>
-                    <div class="mentoria-list">
-                        <div class="mentoria-item" *ngFor="let m of data.mentorias">
-                            <div class="mentoria-avatar" [style.background]="m.mentorColor + '22'"
-                                [style.color]="m.mentorColor">
-                                {{ m.mentorInitials }}
-                            </div>
-                            <div class="mentoria-info">
-                                <p class="mentoria-name">{{ m.mentorName }}</p>
-                                <p class="mentoria-meta">{{ m.subject }} · {{ m.dateLabel }}</p>
-                            </div>
-                            <span class="status-badge" [ngClass]="'status--' + m.status">
-                                {{ m.status }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agenda -->
-                <div class="card">
-                    <div class="card__header">
-                        <span class="card__title">
-                            <i class="ti ti-calendar-event"></i> Agenda — {{ data.agenda.label }}
-                        </span>
-                        <button class="link-btn">Abrir →</button>
-                    </div>
-                    <table class="calendar">
-                        <thead>
-                            <tr>
-                                <th *ngFor="let d of weekDays">{{ d }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let week of data.agenda.weeks">
-                                <td *ngFor="let day of week" [class.today]="day.isToday"
-                                    [class.has-session]="day.hasSession && !day.isToday"
-                                    [class.empty]="day.date === null">
-                                    {{ day.date !== null ? day.date : '' }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="calendar-legend">
-                        <span class="legend-item"><span class="legend-dot today"></span> Hoy</span>
-                        <span class="legend-item"><span class="legend-dot session"></span> Sesión agendada</span>
-                    </div>
-                </div>
-
-                <!-- Bitácora -->
-                <div class="card">
-                    <div class="card__header">
-                        <span class="card__title">
-                            <i class="ti ti-notebook"></i> Bitácora reciente
-                        </span>
-                        <button class="link-btn">Ver todo →</button>
-                    </div>
-                    <div class="bitacora-list">
-                        <div class="bitacora-item" *ngFor="let entry of data.bitacora">
-                            <div class="bitacora-item__top">
-                                <p class="bitacora-item__title">{{ entry.title }}</p>
-                                <span class="bitacora-item__date">{{ entry.dateLabel }}</span>
-                            </div>
-                            <p class="bitacora-item__desc">{{ entry.description }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mentores destacados -->
-                <div class="card">
-                    <div class="card__header">
-                        <span class="card__title">
-                            <i class="ti ti-users"></i> Mentores destacados
-                        </span>
-                        <button class="link-btn">Ver todos →</button>
-                    </div>
-                    <div class="mentor-list">
-                        <div class="mentor-item" *ngFor="let mentor of data.mentoresDestacados">
-                            <div class="mentoria-avatar" [style.background]="mentor.color + '22'"
-                                [style.color]="mentor.color">
-                                {{ mentor.initials }}
-                            </div>
-                            <div class="mentor-info">
-                                <p class="mentoria-name">{{ mentor.name }}</p>
-                                <p class="mentoria-meta">{{ mentor.subjects }}</p>
-                            </div>
-                            <span class="mentor-rating">
-                                <i class="ti ti-star-filled"></i> {{ mentor.rating }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="stat-card" routerLink="/bitacora" style="cursor:pointer">
+                <i class="ti ti-notebook stat-card__icon"></i>
+                <span class="stat-card__value">{{ data.stats.entradasBitacora }}</span>
+                <span class="stat-card__label">Entradas en bitácora</span>
+            </div>
+            <div class="stat-card">
+                <i class="ti ti-star stat-card__icon accent"></i>
+                <span class="stat-card__value">{{ data.stats.calificacionPromedio }}</span>
+                <span class="stat-card__label">Calificación promedio</span>
             </div>
         </div>
-    </div>
 
-    <!-- Loading state -->
-    <div class="home-loading" *ngIf="loading">
-        <i class="ti ti-loader-2 spin"></i>
+        <!-- Acciones rápidas -->
+        <div class="quick-actions">
+            <button class="quick-btn" routerLink="/mentorias">
+                <i class="ti ti-calendar-plus"></i>
+                <span>Programar sesión</span>
+            </button>
+            <button class="quick-btn" routerLink="/mentores">
+                <i class="ti ti-users"></i>
+                <span>Ver mentores</span>
+            </button>
+            <button class="quick-btn" routerLink="/bitacora">
+                <i class="ti ti-notebook"></i>
+                <span>Ir a bitácora</span>
+            </button>
+        </div>
+
+        <!-- Grid inferior -->
+        <div class="bottom-grid">
+
+            <!-- Mis mentorías -->
+            <div class="card">
+                <div class="card__header">
+                    <span class="card__title">
+                        <i class="ti ti-school"></i> Mis mentorías
+                    </span>
+                    <button class="link-btn" routerLink="/mentorias">Ver todas →</button>
+                </div>
+                <div class="mentoria-list">
+                    <div class="mentoria-item" *ngFor="let m of data.mentorias">
+                        <div class="mentoria-avatar" [style.background]="m.mentorColor + '22'"
+                            [style.color]="m.mentorColor">
+                            {{ m.mentorInitials }}
+                        </div>
+                        <div class="mentoria-info">
+                            <p class="mentoria-name">{{ m.mentorName }}</p>
+                            <p class="mentoria-meta">{{ m.subject }} · {{ m.dateLabel }}</p>
+                        </div>
+                        <span class="status-badge" [ngClass]="'status--' + m.status">
+                            {{ m.status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agenda -->
+            <div class="card">
+                <div class="card__header">
+                    <span class="card__title">
+                        <i class="ti ti-calendar-event"></i> Agenda — {{ data.agenda.label }}
+                    </span>
+                    <button class="link-btn" routerLink="/mentorias">Abrir →</button>
+                </div>
+                <table class="calendar">
+                    <thead>
+                        <tr>
+                            <th *ngFor="let d of weekDays">{{ d }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let week of data.agenda.weeks">
+                            <td *ngFor="let day of week" [class.today]="day.isToday"
+                                [class.has-session]="day.hasSession && !day.isToday" [class.empty]="day.date === null">
+                                {{ day.date !== null ? day.date : '' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="calendar-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot today"></span> Hoy
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot session"></span> Sesión agendada
+                    </span>
+                </div>
+            </div>
+
+            <!-- Acceso rápido a bitácora -->
+            <div class="card card--link" routerLink="/bitacora">
+                <div class="card__header">
+                    <span class="card__title">
+                        <i class="ti ti-notebook"></i> Bitácora
+                    </span>
+                    <span class="link-btn">Ver todo →</span>
+                </div>
+                <div class="card-shortcut">
+                    <div class="shortcut-stat">
+                        <span class="shortcut-stat__value">{{ data.stats.entradasBitacora }}</span>
+                        <span class="shortcut-stat__label">Entradas registradas</span>
+                    </div>
+                    <i class="ti ti-arrow-right shortcut-arrow"></i>
+                </div>
+            </div>
+
+            <!-- Acceso rápido a mentores -->
+            <div class="card card--link" routerLink="/mentores">
+                <div class="card__header">
+                    <span class="card__title">
+                        <i class="ti ti-users"></i> Mentores
+                    </span>
+                    <span class="link-btn">Ver todos →</span>
+                </div>
+                <div class="card-shortcut">
+                    <div class="shortcut-stat">
+                        <span class="shortcut-stat__value">6</span>
+                        <span class="shortcut-stat__label">Mentores disponibles</span>
+                    </div>
+                    <i class="ti ti-arrow-right shortcut-arrow"></i>
+                </div>
+            </div>
+
+        </div>
     </div>
+</div>
+
+<!-- Loading -->
+<div class="home-loading" *ngIf="loading">
+    <i class="ti ti-loader-2 spin"></i>
+</div>

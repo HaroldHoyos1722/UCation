@@ -5,6 +5,7 @@ import {
   MentoriasService, Mentoria, Sesion,
   SesionForm, UserRole, EstadoMentoria
 } from '../../services/mentorias.service';
+import { EstadoFilterPipe } from './estado-filter.pipe';
 
 type TabType = 'lista' | 'calendario';
 
@@ -17,15 +18,15 @@ interface CalendarDay {
 @Component({
   selector: 'app-mentorias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EstadoFilterPipe],
   templateUrl: './mentorias.component.html',
   styleUrls: ['./mentorias.component.css']
 })
 export class MentoriasComponent implements OnInit {
 
   // TODO: obtener del AuthService cuando esté el backend
-  currentRole: UserRole = 'estudiante';
-  currentUserId = 'e1';
+  currentRole: UserRole = 'mentor';
+  currentUserId = 'm1';
 
   mentorias: Mentoria[] = [];
   loading = true;
@@ -52,6 +53,7 @@ export class MentoriasComponent implements OnInit {
   sesionesTooltip: Sesion[] | null = null;
 
   readonly DURACIONES = [30, 45, 60];
+  readonly today = new Date();
   readonly ESTADOS_LABEL: Record<string, string> = {
     pendiente: 'Pendiente', aceptada: 'Aceptada',
     finalizada: 'Finalizada', rechazada: 'Rechazada'
@@ -106,8 +108,16 @@ export class MentoriasComponent implements OnInit {
 
   // ── Modal sesión ────────────────────────────────────────────
 
-  abrirModalSesion(mentoria: Mentoria, sesion?: Sesion): void {
+  estudianteSeleccionadoId: string = '';
+
+  onEstudianteChange(mentoriaId: string): void {
+    const mentoria = this.mentorias.find(m => m.id === mentoriaId);
+    if (mentoria) this.mentoriaActivaSesion = mentoria;
+  }
+
+  abrirModalSesion(mentoria: Mentoria | null, sesion?: Sesion): void {
     this.mentoriaActivaSesion = mentoria;
+    this.estudianteSeleccionadoId = mentoria?.id ?? '';
     this.sesionEditando = sesion ?? null;
     this.sesionForm = sesion
       ? {
@@ -116,13 +126,18 @@ export class MentoriasComponent implements OnInit {
         lugar: sesion.lugar, observaciones: sesion.observaciones
       }
       : this.formVacio();
+    if (this.fechaSeleccionada && !sesion) {
+      this.sesionForm.fecha = this.fechaSeleccionada;
+    }
     this.modalSesionAbierto = true;
   }
+
 
   cerrarModalSesion(): void {
     this.modalSesionAbierto = false;
     this.mentoriaActivaSesion = null;
     this.sesionEditando = null;
+    this.estudianteSeleccionadoId = '';
     this.sesionForm = this.formVacio();
   }
 
@@ -168,17 +183,19 @@ export class MentoriasComponent implements OnInit {
   cerrarDetalle(): void { this.mentoriaDetalle = null; }
 
   // ── Calendario ──────────────────────────────────────────────
+  diaSeleccionado: CalendarDay | null = null;
+  fechaSeleccionada: string = '';
 
   buildCalendar(): void {
     const todasSesiones = this.mentoriasFiltradas
-      .flatMap(m => m.sesiones)
+      .flatMap(m => m.sesiones.map(s => ({ ...s, mentoriaRef: m })))
       .filter(s => s.estado === 'programada');
 
     const firstDay = new Date(this.calendarYear, this.calendarMonth, 1);
     const lastDay = new Date(this.calendarYear, this.calendarMonth + 1, 0);
     const today = new Date();
 
-    let dow = (firstDay.getDay() + 6) % 7; // Lunes = 0
+    let dow = (firstDay.getDay() + 6) % 7;
     const weeks: CalendarDay[][] = [];
     let week: CalendarDay[] = [];
 
@@ -196,8 +213,46 @@ export class MentoriasComponent implements OnInit {
 
     while (week.length > 0 && week.length < 7) week.push({ date: null, isToday: false, sesiones: [] });
     if (week.length) weeks.push(week);
-
     this.calendarWeeks = weeks;
+  }
+
+
+  seleccionarDia(day: CalendarDay): void {
+    if (!day.date) return;
+    if (this.diaSeleccionado?.date === day.date) {
+      // Toggle: si haces clic en el mismo día, deselecciona
+      this.diaSeleccionado = null;
+      this.fechaSeleccionada = '';
+      return;
+    }
+    this.diaSeleccionado = day;
+    this.fechaSeleccionada = `${this.calendarYear}-${String(this.calendarMonth + 1).padStart(2, '0')}-${String(day.date).padStart(2, '0')}`;
+  }
+
+  tieneSesion(mentoria: Mentoria, sesionId: string): boolean {
+    return mentoria.sesiones.some(s => s.id === sesionId);
+  }
+
+  programarDesdeDia(mentoria: Mentoria): void {
+    this.abrirModalSesion(mentoria);
+    // Precargar la fecha seleccionada en el formulario
+    if (this.fechaSeleccionada) {
+      this.sesionForm.fecha = this.fechaSeleccionada;
+    }
+  }
+
+  getMentoriasConSesionEnDia(day: CalendarDay): Mentoria[] {
+    if (!day.sesiones.length) return [];
+    const ids = new Set(day.sesiones.map(s => s.mentoriaId));
+    return this.mentoriasFiltradas.filter(m => ids.has(m.id));
+  }
+
+  isPasado(day: CalendarDay): boolean {
+    if (!day.date) return false;
+    const hoy = new Date();
+    const fecha = new Date(this.calendarYear, this.calendarMonth, day.date);
+    fecha.setHours(23, 59, 59);
+    return fecha < hoy && !day.isToday;
   }
 
   prevMonth(): void {
@@ -235,7 +290,8 @@ export class MentoriasComponent implements OnInit {
 
   formularioValido(): boolean {
     const f = this.sesionForm;
-    return !!(f.fecha && f.hora && f.lugar &&
+    const tieneEstudiante = !!this.mentoriaActivaSesion;
+    return !!(tieneEstudiante && f.fecha && f.hora && f.lugar &&
       f.duracionMinutos >= 30 && f.duracionMinutos <= 60);
   }
 }
