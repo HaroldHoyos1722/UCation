@@ -3,6 +3,10 @@ server:
   servlet:
     context-path: /rest/v1.0/ucation
 spring:
+  config:
+    import: optional:dotenv:../../.env
+  dotenv:
+    enabled: true
   application:
     name: ucation
     version: 1.0.0
@@ -43,4 +47,4 @@ jwt:
   secret: ${SECRET_JWT}
   expiracion: ${TIEMPO_EXPIRACION_JWT}
 
-urlexcluirfilter: /rest/v1.0/ucation/login,/rest/v1.0/ucation/usuario/registrar,/rest/v1.0/ucation/recuperar-contrasena/**
+urlexcluirfilter: /rest/v1.0/ucation/login,/rest/v1.0/ucation/usuario/registrar,/rest/v1.0/ucation/recuperar-contrasena/**,/rest/v1.0/ucation/api/hello

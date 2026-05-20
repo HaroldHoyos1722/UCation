@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private api: ApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.dashboardService.getDashboardData().subscribe({
@@ -32,8 +32,14 @@ export class HomeComponent implements OnInit {
       error: () => { this.loading = false; }
     });
 
-    this.api.getHello().subscribe(() => {
-      console.log('Front y Backend se comunican correctamente');
+    this.api.getHello().subscribe({
+      next: (res) => {
+        console.log('Front y Backend se comunican correctamente');
+        console.log(res);
+      },
+      error: (err) => {
+        console.error('Error de conexión:', err);
+      }
     });
   }
 
